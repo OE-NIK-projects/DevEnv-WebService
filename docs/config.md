@@ -76,7 +76,13 @@ make all
 
 A GitLab a `https://gitlab.example.com:8000` címen lesz elérhető.
 
-Amennyiben ez nem megfelelő, a **[DNS](#dns)** és **[Környezeti változók](#környezeti-változók-módosítása-env)** részben leírtaknak megfelelően kell módosítani.
+Ha az alaptól eltérő domain nevet szeretnél használni (például `csillamponik.hu`), futtasd a következő parancsot:
+
+```bash
+make all DOMAIN_NAME=csillamponik.hu
+```
+
+Ez végrehajtja az összes szükséges lépést a GitLab telepítéséhez és beállításához a megadott domain névvel.
 
 ## Manuális Konfiguráció
 
@@ -163,7 +169,7 @@ Példa válasz az `ip a` parancsra:
        valid_lft forever preferred_lft forever
 ```
 
-Ebben az esetben a `ens33`-as interfészen található meg az `inet` és azon belül a `192.168.247.132` ip cím.
+Ebben az esetben a `ens33`-as interfészben az `inet` kulcsszó után a `192.168.247.132` a szerver ip címe.
 
 ---
 
