@@ -68,21 +68,41 @@ cd DevEnv-WebService
 
 ## Automatikus Konfiguráció
 
-Amennyiben automatikusan szeretnénk végrehajtani a soron következő lépéseket olvasd el a **[Makefile dokumentáció](./makefile.md)**-t vagy futtasuk ezt a parancsot:
+A lépések a **[Makefile dokumentáció](./makefile.md)**-ban vannak részletezve.
+
+Futtatás előtt ezeknek a feltételeknek teljesülniük kell:
+
+1. A szerveren telepítve van a `make` és a `docker compose`.
+2. A felhasználó benne van a `docker` és a `sudo` csoportban.
+3. A felhasználó a `docker` mappában van. (Ott ahol a `Makefile` található)
+
+Futtatás:
 
 ```bash
-make all
+sudo make all
 ```
 
-A GitLab a `https://gitlab.example.com:8000` címen lesz elérhető.
-
-Ha az alaptól eltérő domain nevet szeretnél használni (például `csillamponik.hu`), futtasd a következő parancsot:
+Ha az alaptól eltérő domain nevet és/vagy portot szeretnél használni (például `csillamponik.hu`, ami a `8888`-as porton fut), futtasd a következő parancsot:
 
 ```bash
-make all DOMAIN_NAME=csillamponik.hu
+sudo make all DOMAIN_NAME=csillamponik.hu PORT=8888
 ```
 
-Ez végrehajtja az összes szükséges lépést a GitLab telepítéséhez és beállításához a megadott domain névvel.
+Ez végrehajtja az összes szükséges lépést a GitLab telepítéséhez és beállításához a megadott domain névvel és porttal.
+
+Miután bebootolt a GitLab, ezen a linken lehet majd elérni: `https://gitlab.csillamponik.hu:8888/`
+
+Az alap root jelszót ezzel a paranccsal kérjük le:
+
+```bash
+sudo docker exec -it gitlab grep 'Password:' /etc/gitlab/initial_root_password
+```
+
+A belépéshez használjuk a `root` felhasználónevet és az alap root jelszót.
+
+Belépés után **ERŐSEN AJÁNLOTT** megváltoztatni a jelszót!
+
+---
 
 ## Manuális Konfiguráció
 
