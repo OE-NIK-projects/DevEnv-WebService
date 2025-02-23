@@ -4,6 +4,6 @@
 
 WIP
 
-1. [Tervezés](./planning.md)
-2. [Konfiguráció](./config.md)
-3. [Tesztelés](./testing.md)
+1. [Tervezés](./docs/planning.md)
+2. [Konfiguráció](./docs/config.md)
+3. [Tesztelés](./docs/testing.md)
