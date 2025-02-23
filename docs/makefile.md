@@ -4,9 +4,11 @@ Ez a dokumentáció összefoglalja a `Makefile` használatát a GitLab környeze
 
 ## Használat
 
-A Makefile használatához először győződjünk meg róla, hogy a rendszerünkön telepítve van a `Make` és a `Docker Compose`.
+Futtatás előtt ezeknek a feltételeknek teljesülniük kell:
 
-A felhasználó benne van a `docker` és a `sudo` csoportban.
+1. A szerveren telepítve van a `make` és a `docker compose`.
+2. A felhasználó benne van a `docker` és a `sudo` csoportban.
+3. A felhasználó a `docker` mappában van. (Ott ahol a `makefile` van)
 
 Futtatás:
 
