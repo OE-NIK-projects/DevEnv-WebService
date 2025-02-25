@@ -1,35 +1,25 @@
-/interface ethernet
-    set [ find default-name=ether1 ] disable-running-check=no
-    set [ find default-name=ether2 ] disable-running-check=no
+# Written for RouterOS 7.18
 
-/interface list
-    add name=LAN
-    add name=WAN
+# Assign IP address for LAN interface
+/ip/address
+add address=192.168.11.1/24 interface=ether2 network=192.168.11.0
 
-/ip pool
-    add name=inside-pool ranges=192.168.11.200-192.168.11.249
+# Add DHCP pool for LAN
+/ip/pool
+add name=inside-pool ranges=192.168.11.200-192.168.11.249
 
-/ip dhcp-server
-    add address-pool=inside-pool interface=ether2 name=inside-dhcp
+# Add a DHCP server for LAN interface
+/ip/dhcp-server
+add address-pool=inside-pool disabled=no interface=ether2 name=inside-dhcp
 
-/interface list member
-    add interface=ether1 list=WAN
-    add interface=ether2 list=LAN
+# Add DHCP network for LAN
+/ip/dhcp-server/network
+add address=192.168.11.0/24 comment=inside-network dns-server=192.168.11.1,8.8.8.8 gateway=192.168.11.1 netmask=24
 
-/ip address
-    add address=192.168.11.1/24 interface=ether2 network=192.168.11.0
+# Add Google's DNS server
+/ip/dns
+set servers=8.8.8.8
 
-/ip dhcp-client
-    add interface=ether1
-
-/ip dhcp-server network
-    add address=192.168.11.0/24 comment=inside-network dns-server=192.168.11.1,8.8.8.8 gateway=192.168.11.1 netmask=24
-
-/ip dns
-    set servers=8.8.8.8
-
-/ip firewall nat
-    add action=masquerade chain=srcnat comment=inside out-interface-list=WAN
-
-/system note
-    set show-at-login=no
+# Setup IP masquerading for LAN
+/ip/firewall/nat
+add action=masquerade chain=srcnat comment=inside out-interface=ether1
