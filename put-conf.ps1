@@ -1,6 +1,6 @@
 #!/usr/bin/env pwsh
 
-if (-not (Get-Command "sftp" -ErrorAction SilentlyContinue)) {
+if (!(Get-Command "sftp" -ErrorAction SilentlyContinue)) {
 	Write-Host "Error: sftp is not installed!" -ForegroundColor Red
 	exit 1
 }
