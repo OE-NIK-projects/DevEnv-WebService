@@ -12,6 +12,10 @@ add name=inside-pool ranges=192.168.11.200-192.168.11.249
 /ip/dhcp-server
 add address-pool=inside-pool disabled=no interface=ether2 name=inside-dhcp
 
+# Lease address for server
+/ip/dhcp-server/lease
+add address=192.168.11.11 mac-address=00:0C:29:74:F0:BA server=inside-dhcp
+
 # Add DHCP network for LAN
 /ip/dhcp-server/network
 add address=192.168.11.0/24 comment="LAN" dns-server=192.168.11.1 gateway=192.168.11.1 netmask=24
