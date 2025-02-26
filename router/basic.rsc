@@ -14,12 +14,12 @@ add address-pool=inside-pool disabled=no interface=ether2 name=inside-dhcp
 
 # Add DHCP network for LAN
 /ip/dhcp-server/network
-add address=192.168.11.0/24 comment=inside-network dns-server=192.168.11.1,8.8.8.8 gateway=192.168.11.1 netmask=24
+add address=192.168.11.0/24 comment="LAN" dns-server=192.168.11.1 gateway=192.168.11.1 netmask=24
 
-# Add Google's DNS server
+# Add Google's DNS server and allow clients to use the cache
 /ip/dns
-set servers=8.8.8.8
+set allow-remote-requests=yes servers=8.8.8.8
 
 # Setup IP masquerading for LAN
 /ip/firewall/nat
-add action=masquerade chain=srcnat comment=inside out-interface=ether1
+add action=masquerade chain=srcnat comment="LAN" out-interface=ether1
