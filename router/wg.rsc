@@ -14,4 +14,4 @@ add address=172.16.1.1/16 interface=wg network=172.16.0.0
 
 # Setup IP masquerading for wireguard
 /ip/firewall/nat
-add action=masquerade chain=srcnat comment=wg out-interface=ether1 src-address=172.16.16.0/24
+add action=masquerade chain=srcnat comment="WireGuard" out-interface=ether1 src-address=172.16.16.0/24
