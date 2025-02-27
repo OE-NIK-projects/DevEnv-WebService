@@ -10,14 +10,13 @@ ENV_CONFIG=$(DOCKER_DIR)/.env
 DNS_CONFIG=$(DOCKER_DIR)/dns/dnsmasq.conf
 
 DOMAIN_NAME?=example.com
-PORT?=8000
 
 .PHONY: all configure-env update-env update-dns setup-docker disable-systemd-resolved start-containers configure-firewall get-gitlab-password
 
 # Main setup command
 all: configure-env update-dns update-env setup-docker disable-systemd-resolved start-containers configure-firewall
 	@echo "Setup completed successfully."
-	@echo "GitLab will be running on 'https://$(DOMAIN_NAME):$(PORT)'"
+	@echo "GitLab will be running on 'https://$(DOMAIN_NAME)'"
 	@echo "To get GitLab initial_root_password run: sudo make get-gitlab-password"
 	@echo "GitLab is starting. This may take a few minutes. Check the logs with 'sudo docker logs -f gitlab'."
 
@@ -29,7 +28,6 @@ configure-env:
 # Step 2: Update .env file with the domain name
 update-env:
 	sed -i "s/^GITLAB_URL=.*/GITLAB_URL=gitlab.$(DOMAIN_NAME)/" $(ENV_CONFIG) && \
-	sed -i "s/^GITLAB_PORT=.*/GITLAB_PORT=$(PORT)/" $(ENV_CONFIG) && \
 	echo "Updated $(ENV_CONFIG) with GITLAB_URL=gitlab.$(DOMAIN_NAME)"
 
 # Step 3: Update dnsmasq.conf with this machine's IP
@@ -62,7 +60,6 @@ configure-firewall:
 	sudo ufw allow 22/tcp
 	sudo ufw allow 53/tcp
 	sudo ufw allow 53/udp
-	sudo ufw allow $(PORT)/tcp
 	sudo ufw allow 443/tcp
 	sudo ufw allow 2424/tcp
 	sudo ufw enable

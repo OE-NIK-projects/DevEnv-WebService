@@ -82,17 +82,23 @@ Futtatás:
 sudo make all
 ```
 
-Ha az alaptól eltérő domain nevet és/vagy portot szeretnél használni (például `csillamponik.hu`, ami a `8888`-as porton fut), futtasd a következő parancsot:
+Ha az alaptól eltérő domain név az elvárás (például `csillamponik.hu`), adjuk ki a következő parancsot:
 
 ```bash
-sudo make all DOMAIN_NAME=csillamponik.hu PORT=8888
+sudo make all DOMAIN_NAME=csillamponik.hu
 ```
 
-Ez végrehajtja az összes szükséges lépést a GitLab telepítéséhez és beállításához a megadott domain névvel és porttal.
+Ez a parancs végrehajtja az összes szükséges lépést a GitLab telepítéséhez és beállításához a megadott domain névvel a [`makefile`](../makefile) segítségével.
 
-Miután bebootolt a GitLab, ezen a linken lehet majd elérni: `https://gitlab.csillamponik.hu:8888/`
+Miután bebootolt a GitLab, ezen a linken lehet majd elérni: `https://gitlab.csillamponik.hu`
 
 Az alap root jelszót ezzel a paranccsal kérjük le:
+
+```bash
+sudo make get-gitlab-password
+```
+
+Vagy a következővel:
 
 ```bash
 sudo docker exec -it gitlab grep 'Password:' /etc/gitlab/initial_root_password
@@ -195,7 +201,13 @@ Ebben az esetben a `ens33`-as interfészben az `inet` kulcsszó után a `192.168
 
 ### DNS
 
-Nyissuk meg és módosítsuk a `dns/dnsmasq.conf` fájlt.
+Másoljuk le a `dns/dnsmasq-example.conf` fájlt `dns/dnsmasq.conf` néven.
+
+```bash
+cp dns/dnsmasq-example.conf dns/dnsmasq.conf
+```
+
+Nyissuk meg és módosítsuk a tartalmát.
 
 ```bash
 nano dns/dnsmasq.conf
@@ -251,7 +263,6 @@ DNS_PORT_TCP=53
 #Gitlab pre-configuration
 GITLAB_CONTAINER_NAME="gitlab"
 GITLAB_URL="gitlab.example.com"
-GITLAB_PORT=8000
 GITLAB_SSH_PORT=2424
 GITLAB_HOME_DIR="./gitlab"
 
@@ -302,7 +313,6 @@ Majd engedélyezzük a szükséges portokat:
 ```bash
 sudo ufw allow 53/tcp
 sudo ufw allow 53/udp
-sudo ufw allow 8000/tcp
 sudo ufw allow 443/tcp
 sudo ufw allow 2424/tcp
 sudo ufw enable
@@ -323,7 +333,6 @@ Ha a válaszban megtalálhatóak ezek a sorok, akkor sikeresen konfiguráltuk a 
 | 53/tcp   | ALLOW | Anywhere |
 | 53/udp   | ALLOW | Anywhere |
 | 443/tcp  | ALLOW | Anywhere |
-| 8000/tcp | ALLOW | Anywhere |
 | 2424/tcp | ALLOW | Anywhere |
 
 ---
@@ -336,7 +345,7 @@ A GitLab telepítése után az első bejelentkezéshez a root jelszót az alább
 docker exec -it gitlab grep 'Password:' /etc/gitlab/initial_root_password
 ```
 
-Ezután a GitLab elérhető a böngészőben a `https://gitlab.example.com:8000` címen, amennyiben **NEM** módosítottunk a domain nevet és/vagy portot a `dnsmasq.conf` és `.env` fájlokban.
+Ezután a GitLab elérhető a böngészőben a `https://gitlab.example.com` címen, amennyiben **NEM** módosítottunk a domain nevet a `dnsmasq.conf` és `.env` fájlokban.
 
 A bejelentkezéshez használjuk a `root` felhasználónevet és a konzolra kiírt ideiglenes jelszót.
 

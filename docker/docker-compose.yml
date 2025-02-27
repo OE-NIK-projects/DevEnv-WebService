@@ -18,13 +18,12 @@ services:
     hostname: '${GITLAB_URL}'
     environment:
       GITLAB_OMNIBUS_CONFIG: |
-        external_url 'https://${GITLAB_URL}:${GITLAB_PORT}'
+        external_url 'https://${GITLAB_URL}'
         gitlab_rails['gitlab_shell_ssh_port'] = '${GITLAB_SSH_PORT}'
         puma['worker_processes'] = ${GITLAB_PUMA_WORKER_PROCESSES}
         prometheus_monitoring['enable'] = ${GITLAB_PROMETHEUS_MONITORING}
         sidekiq['max_concurrency'] = ${GITLAB_SIDEKIQ_MAX_CONCURRENCY}
     ports:
-      - '${GITLAB_PORT}:${GITLAB_PORT}'
       - '443:443'
       - '${GITLAB_SSH_PORT}:22'
     volumes:
