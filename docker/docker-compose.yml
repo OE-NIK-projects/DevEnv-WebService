@@ -18,7 +18,7 @@ services:
     hostname: '${GITLAB_URL}'
     environment:
       GITLAB_OMNIBUS_CONFIG: |
-        external_url 'https://${GITLAB_URL}'
+        external_url 'https://${GITLAB_URL}:443'
         gitlab_rails['gitlab_shell_ssh_port'] = '${GITLAB_SSH_PORT}'
         puma['worker_processes'] = ${GITLAB_PUMA_WORKER_PROCESSES}
         prometheus_monitoring['enable'] = ${GITLAB_PROMETHEUS_MONITORING}
