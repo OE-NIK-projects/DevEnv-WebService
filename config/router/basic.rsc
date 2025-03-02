@@ -26,4 +26,4 @@ set allow-remote-requests=yes servers=8.8.8.8
 
 # Setup IP masquerading for LAN
 /ip/firewall/nat
-add action=masquerade chain=srcnat comment="LAN" out-interface=ether1
+add action=masquerade chain=srcnat comment=LAN in-interface=ether2 out-interface=ether1
