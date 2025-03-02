@@ -2,7 +2,7 @@
 
 # Variables
 DC=docker compose
-DOCKER_DIR=docker
+DOCKER_DIR=config/docker
 ENV_CONFIG=$(DOCKER_DIR)/.env
 DOMAIN_NAME?=example.com
 
