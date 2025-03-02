@@ -1,3 +1,5 @@
+# Makefile dokumentáció
+
 Futtatás előtt ezeknek a feltételeknek teljesülniük kell:
 
 1. A szerveren telepítve van a `make` és a `docker compose`.
@@ -57,15 +59,6 @@ Belépés után **ERŐSEN AJÁNLOTT** megváltoztatni a jelszót!
 ### 4. **Konténerek indítása**
 
 - A docker konténerek elindítása a `docker compose` segítségével.
-
-### 5. **Tűzfal konfigurálása**
-
-- Az alábbi portok engedélyezése:
-  - 22/tcp (SSH)
-  - 53/tcp, 53/udp (DNS)
-  - 443/tcp (HTTPS)
-  - 2424/tcp (GitLab SSH)
-- A tűzfal engedélyezése és frissítése.
 
 ### 6. **GitLab root jelszó lekérése**
 

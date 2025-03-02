@@ -35,17 +35,6 @@ start-containers:
 	cd $(DOCKER_DIR) && sudo $(DC) up -d
 	@echo "Containers started."
 
-# Step 5: Configure firewall rules
-configure-firewall:
-	sudo ufw allow 22/tcp
-	sudo ufw allow 53/tcp
-	sudo ufw allow 53/udp
-	sudo ufw allow 443/tcp
-	sudo ufw allow 2424/tcp
-	sudo ufw enable
-	sudo ufw reload
-	@echo "Firewall rules configured."
-
-# Step 6: Retrieve GitLab root password
+# Step 5: Retrieve GitLab root password
 get-gitlab-password:
 	sudo docker exec -it gitlab grep 'Password:' /etc/gitlab/initial_root_password

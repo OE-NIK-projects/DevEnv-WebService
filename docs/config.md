@@ -44,10 +44,12 @@ su - $USER
 
 ### Alapvető Eszközök Telepítése
 
-Frissítés után telepítsük a **git** verziókezelőt és a **make** automatizálási eszközt:
+Frissítés után telepítsük a **git** verziókezelőt és az **ansible** automatizálási eszközt:
 
 ```bash
-sudo apt install git make -y
+sudo apt install git software-properties-common -y
+sudo add-apt-repository --yes --update ppa:ansible/ansible
+sudo apt install ansible
 ```
 
 ---
@@ -60,10 +62,10 @@ Klónozzuk le a publikus GitHub repót, amely tartalmazza a szükséges **script
 git clone https://github.com/OE-NIK-projects/DevEnv-WebService .
 ```
 
-Lépjünk be a `DevEnv-WebService` mappába:
+Lépjünk be a `DevEnv-WebService/config` mappába:
 
 ```bash
-cd DevEnv-WebService
+cd DevEnv-WebService/config
 ```
 
 ## Automatikus Konfiguráció
