@@ -9,7 +9,7 @@ $originalPath = Get-Location
 Set-Location $PSScriptRoot
 
 @'
-put router/*.rsc
+put ../router/*.rsc
 bye
 '@ | sftp 'admin@192.168.1.254'
 
