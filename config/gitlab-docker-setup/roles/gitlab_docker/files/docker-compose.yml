@@ -18,5 +18,5 @@ services:
     volumes:
       - '${GITLAB_HOME_DIR}/config:/etc/gitlab'
       - '${GITLAB_HOME_DIR}/logs:/var/log/gitlab'
-      - '${GITLAB_HOME_DIR}/data:/var/opt/gitlab'
+      - '${GITLAB_HOME_DIR}/data:/var/gitlab'
     shm_size: '256m'

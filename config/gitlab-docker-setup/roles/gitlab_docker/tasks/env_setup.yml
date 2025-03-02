@@ -1,0 +1,22 @@
+- name: Copy example env file to .env (if not already present)
+  ansible.builtin.copy:
+    src: ".env-example"
+    dest: "/.env"
+    owner: root
+    mode: "0644"
+    force: no
+  tags: gitlab_env
+
+- name: Set GitLab domain in .env
+  ansible.builtin.lineinfile:
+    path: "/.env"
+    regexp: "^GITLAB_URL="
+    line: 'GITLAB_URL="{{ gitlab_domain }}"'
+    backup: yes
+  tags: gitlab_env
+
+- name: Confirm GITLAB_URL is set
+  ansible.builtin.debug:
+    msg: "GITLAB_URL in .env is now set to {{ gitlab_domain }}"
+  when: env_setup|default(true)
+  tags: gitlab_env

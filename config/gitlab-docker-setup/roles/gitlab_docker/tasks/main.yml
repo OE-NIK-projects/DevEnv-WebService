@@ -1,0 +1,11 @@
+- name: Setup environment variables
+  import_tasks: env_setup.yml
+
+- name: Prepare Docker environment (dirs & images)
+  import_tasks: docker_setup.yml
+
+- name: Deploy GitLab with Docker Compose
+  import_tasks: deploy.yml
+
+- name: Post-deployment checks
+  import_tasks: post_deploy.yml
