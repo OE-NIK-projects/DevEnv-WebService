@@ -1,33 +1,33 @@
 $remoteUser = "test"
 $remoteHost = "192.168.247.135"
-$remoteHostPassword = ""
+$remoteHostPassword = $null
 
 $sshKeyPath = "$env:USERPROFILE\.ssh\id_rsa"
 $sshPubKey = "$env:USERPROFILE\.ssh\id_rsa.pub"
 $sshKeySize = 4096
 
-function Execute-SSH-Command {
+function Invoke-SSH-Command {
     [CmdletBinding()]
     param ([string] $Command = "")
     ssh "$remoteUser@$remoteHost" "$Command"
 }
 
-function Generate-SSH-Key {
+function New-SSH-Key {
     [CmdletBinding()]
     param([int] $KeySize = $sshKeySize)
     Write-Host "Generating SSH key with size $KeySize bits..." -ForegroundColor Cyan
     ssh-keygen -t rsa -b $KeySize -f $sshKeyPath -N ""
 }
 
-function Upload-SSH-Key {
+function Send-SSH-Key {
     $pubKeyContent = Get-Content $sshPubKey
     Write-Host "Uploading SSH public key to $remoteHost..." -ForegroundColor Cyan
-    Execute-SSH-Command -Command "mkdir -p ~/.ssh && echo '$pubKeyContent' >> ~/.ssh/authorized_keys"
+    Invoke-SSH-Command -Command "mkdir -p ~/.ssh && echo '$pubKeyContent' >> ~/.ssh/authorized_keys"
 }
 
-function Verify-SSH-Key-Upload {
+function Test-SSH-Key-Upload {
     Write-Host "Testing SSH connection..." -ForegroundColor Cyan
-    $testResult = Execute-SSH-Command -Command "echo 'SSH connection successful'" 2>&1
+    $testResult = Invoke-SSH-Command -Command "echo 'SSH connection successful'" 2>&1
             
     if ($LASTEXITCODE -eq 0) {
         Write-Host "Success: " -ForegroundColor Green -NoNewline
@@ -39,7 +39,7 @@ function Verify-SSH-Key-Upload {
     }
 }
 
-function Set-Up-SSH-Auth {
+function Set-SSH-Auth {
     $generateKey = Read-Host "Do you want to set up SSH public key authentication? (y/n)"
     if ($generateKey -eq "y") {
         if (Test-Path $sshPubKey -PathType Leaf) {
@@ -47,8 +47,8 @@ function Set-Up-SSH-Auth {
                 Write-Host "Found existing SSH public key at " -NoNewline
                 Write-Host "$sshPubKey" -ForegroundColor Cyan
                 
-                Upload-SSH-Key
-                Verify-SSH-Key-Upload
+                Send-SSH-Key
+                Test-SSH-Key-Upload
             }
             catch {
                 Write-Error "SSH key setup failed: $_"
@@ -71,14 +71,16 @@ function Set-Up-SSH-Auth {
                 Write-Host "Using key size: $keySize" -ForegroundColor Cyan
             }
 
-            Generate-SSH-Key -KeySize $keySize
-            Upload-SSH-Key
-            Verify-SSH-Key-Upload
+            New-SSH-Key -KeySize $keySize
+            Send-SSH-Key
+            Test-SSH-Key-Upload
         }
     }
     elseif ($generateKey -eq "n") {
-        $remoteHostPassword = Read-Host "Remote host password"
         Write-Host "Password authentication selected" -ForegroundColor Cyan
+        if ([string]::IsNullOrWhiteSpace -eq $remoteHostPassword) {
+            $remoteHostPassword = Read-Host "Remote host password"
+        }
     }
     else {
         Write-Host "Operation aborted" -ForegroundColor Red
@@ -86,4 +88,26 @@ function Set-Up-SSH-Auth {
     }
 }
 
-Set-Up-SSH-Auth
+function New-GitLab-Directories {
+    try {
+        Write-Host "Creating GitLab directories on $remoteHost..." -ForegroundColor Cyan
+        $result = Invoke-SSH-Command "mkdir -p ~/gitlab/config && mkdir -p ~/gitlab/data && mkdir -p ~/gitlab/logs"
+        
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "GitLab directories created successfully" -ForegroundColor Green
+        }
+        else {
+            Write-Warning "Failed to create GitLab directories. Error: $result"
+        }
+    }
+    catch {
+        Write-Error "Error creating GitLab directories: $_"
+        throw
+    }
+}
+function Set-Up-GitLab {
+    New-GitLab-Directories
+}
+
+Set-SSH-Auth
+Set-Up-GitLab
