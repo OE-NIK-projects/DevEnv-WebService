@@ -2,19 +2,14 @@
 
 # Variables
 DC=docker compose
-
 DOCKER_DIR=docker
-DNS_DIR=$(DOCKER_DIR)/dns
-
 ENV_CONFIG=$(DOCKER_DIR)/.env
-DNS_CONFIG=$(DOCKER_DIR)/dns/dnsmasq.conf
-
 DOMAIN_NAME?=example.com
 
-.PHONY: all configure-env update-env update-dns setup-docker disable-systemd-resolved start-containers configure-firewall get-gitlab-password
+.PHONY: all configure-env update-env setup-docker disable-systemd-resolved start-containers configure-firewall get-gitlab-password
 
 # Main setup command
-all: configure-env update-dns update-env setup-docker disable-systemd-resolved start-containers configure-firewall
+all: configure-env update-env setup-docker disable-systemd-resolved start-containers configure-firewall
 	@echo "Setup completed successfully."
 	@echo "GitLab will be running on 'https://$(DOMAIN_NAME)'"
 	@echo "To get GitLab initial_root_password run: sudo make get-gitlab-password"
@@ -30,25 +25,10 @@ update-env:
 	sed -i "s/^GITLAB_URL=.*/GITLAB_URL=gitlab.$(DOMAIN_NAME)/" $(ENV_CONFIG) && \
 	echo "Updated $(ENV_CONFIG) with GITLAB_URL=gitlab.$(DOMAIN_NAME)"
 
-# Step 3: Update dnsmasq.conf with this machine's IP
-update-dns:
-	cp $(DNS_DIR)/dnsmasq-example.conf $(DNS_CONFIG)
-	IP_ADDR=$$(ip -4 addr show | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | grep -v '127.0.0.1' | head -n 1) && \
-	sed -i "s|address=/example.com/\\[\"This machine's ip address\"\\]|address=/$(DOMAIN_NAME)/$$IP_ADDR|" $(DNS_CONFIG) && \
-	echo "Updated $(DNS_CONFIG) with IP $$IP_ADDR for domain $(DOMAIN_NAME)"
-
 # Step 4: Navigate to docker directory, create gitlab directories and pull images
 setup-docker:
 	mkdir -p $(DOCKER_DIR)/gitlab/config $(DOCKER_DIR)/gitlab/logs $(DOCKER_DIR)/gitlab/data
-	sudo systemctl unmask systemd-resolved
-	sudo systemctl start systemd-resolved
 	cd $(DOCKER_DIR) && sudo $(DC) pull
-
-# Step 5: Disable systemd-resolved
-disable-systemd-resolved:
-	sudo systemctl stop systemd-resolved
-	sudo systemctl disable systemd-resolved
-	sudo systemctl mask systemd-resolved
 
 # Step 6: Start the containers
 start-containers:

@@ -1,16 +1,4 @@
 services:
-  dns:
-    image: dockurr/dnsmasq
-    container_name: '${DNS_CONTAINER_NAME}'
-    volumes:
-      - ./dns/dnsmasq.conf/:/etc/dnsmasq.conf/
-    ports:
-      - '${DNS_PORT_UDP}:53/udp'
-      - '${DNS_PORT_TCP}:53/tcp'
-    cap_add:
-      - NET_ADMIN
-    restart: always
-
   gitlab:
     image: gitlab/gitlab-ce:17.9.0-ce.0
     container_name: '${GITLAB_CONTAINER_NAME}'
@@ -20,6 +8,7 @@ services:
       GITLAB_OMNIBUS_CONFIG: |
         external_url 'https://${GITLAB_URL}'
         gitlab_rails['gitlab_shell_ssh_port'] = '${GITLAB_SSH_PORT}'
+        gitlab_rails['initial_root_password'] = '${GITLAB_INITIAL_ROOT_PASSWORD}'
         puma['worker_processes'] = ${GITLAB_PUMA_WORKER_PROCESSES}
         prometheus_monitoring['enable'] = ${GITLAB_PROMETHEUS_MONITORING}
         sidekiq['max_concurrency'] = ${GITLAB_SIDEKIQ_MAX_CONCURRENCY}
