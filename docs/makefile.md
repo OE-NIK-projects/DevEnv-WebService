@@ -49,26 +49,16 @@ Belépés után **ERŐSEN AJÁNLOTT** megváltoztatni a jelszót!
 
 - A `GITLAB_URL` beállítása a `.env` fájlban.
 
-### 3. **DNS konfigurálása**
-
-- A `dnsmasq-example.conf` fájl lemásolása `dnsmasq.conf` néven.
-- A szerver IP-címének frissítése a konfigurációs fájlban.
-
-### 4. **Docker környezet beállítása**
+### 3. **Docker környezet beállítása**
 
 - A szükséges mappák létrehozása a GitLab konfigurációhoz, logokhoz és adatokhoz.
-- A `systemd-resolved` engedélyezése.
 - A docker image-ek letöltése.
 
-### 5. **Systemd-resolved letiltása**
-
-- A `systemd-resolved` szolgáltatás leállítása és tiltása.
-
-### 6. **Konténerek indítása**
+### 4. **Konténerek indítása**
 
 - A docker konténerek elindítása a `docker compose` segítségével.
 
-### 7. **Tűzfal konfigurálása**
+### 5. **Tűzfal konfigurálása**
 
 - Az alábbi portok engedélyezése:
   - 22/tcp (SSH)
@@ -77,7 +67,7 @@ Belépés után **ERŐSEN AJÁNLOTT** megváltoztatni a jelszót!
   - 2424/tcp (GitLab SSH)
 - A tűzfal engedélyezése és frissítése.
 
-### 8. **GitLab root jelszó lekérése**
+### 6. **GitLab root jelszó lekérése**
 
 - A GitLab alap root jelszavának megtekintése a docker konténerből.
 

@@ -6,10 +6,10 @@ DOCKER_DIR=config/docker
 ENV_CONFIG=$(DOCKER_DIR)/.env
 DOMAIN_NAME?=example.com
 
-.PHONY: all configure-env update-env setup-docker disable-systemd-resolved start-containers configure-firewall get-gitlab-password
+.PHONY: all configure-env update-env setup-docker start-containers configure-firewall get-gitlab-password
 
 # Main setup command
-all: configure-env update-env setup-docker disable-systemd-resolved start-containers configure-firewall
+all: configure-env update-env setup-docker start-containers configure-firewall
 	@echo "Setup completed successfully."
 	@echo "GitLab will be running on 'https://$(DOMAIN_NAME)'"
 	@echo "To get GitLab initial_root_password run: sudo make get-gitlab-password"
@@ -25,17 +25,17 @@ update-env:
 	sed -i "s/^GITLAB_URL=.*/GITLAB_URL=gitlab.$(DOMAIN_NAME)/" $(ENV_CONFIG) && \
 	echo "Updated $(ENV_CONFIG) with GITLAB_URL=gitlab.$(DOMAIN_NAME)"
 
-# Step 4: Navigate to docker directory, create gitlab directories and pull images
+# Step 3: Navigate to docker directory, create gitlab directories and pull images
 setup-docker:
 	mkdir -p $(DOCKER_DIR)/gitlab/config $(DOCKER_DIR)/gitlab/logs $(DOCKER_DIR)/gitlab/data
 	cd $(DOCKER_DIR) && sudo $(DC) pull
 
-# Step 6: Start the containers
+# Step 4: Start the containers
 start-containers:
 	cd $(DOCKER_DIR) && sudo $(DC) up -d
 	@echo "Containers started."
 
-# Step 7: Configure firewall rules
+# Step 5: Configure firewall rules
 configure-firewall:
 	sudo ufw allow 22/tcp
 	sudo ufw allow 53/tcp
@@ -46,6 +46,6 @@ configure-firewall:
 	sudo ufw reload
 	@echo "Firewall rules configured."
 
-# Step 8: Retrieve GitLab root password
+# Step 6: Retrieve GitLab root password
 get-gitlab-password:
 	sudo docker exec -it gitlab grep 'Password:' /etc/gitlab/initial_root_password
