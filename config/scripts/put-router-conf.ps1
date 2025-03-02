@@ -8,9 +8,19 @@ if (!(Get-Command 'sftp' -ErrorAction SilentlyContinue)) {
 $originalPath = Get-Location
 Set-Location $PSScriptRoot
 
+$address = '10.0.0.128'
+if (Test-Connection $address -TcpPort 2222 -TimeoutSeconds 1) {
+	$port = 2222
+}
+else {
+	$port = 22
+}
+
+Write-Host "Connecting to $address on port $port"
+
 @'
 put ../router/*.rsc
 bye
-'@ | sftp 'admin@192.168.1.254'
+'@ | sftp -P $port "admin@$address"
 
 Set-Location $originalPath
