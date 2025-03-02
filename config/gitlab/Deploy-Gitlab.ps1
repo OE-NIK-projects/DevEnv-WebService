@@ -6,15 +6,37 @@ $sshKeyPath = "$env:USERPROFILE\.ssh\id_rsa"
 $sshPubKey = "$env:USERPROFILE\.ssh\id_rsa.pub"
 $sshKeySize = 4096
 
+$dockerDir = "~/docker"
+$gitlabDir = "$dockerDir/gitlab"
+$gitlabUrl = "example.com"
+$gitlabRootPassword = "password"
+
+$dotEnvExampleFile = ".\.env-example"
+$dotEnvFile = ".\.env"
+
 function Invoke-SSH-Command {
     [CmdletBinding()]
     param ([string] $Command = "")
+
     ssh "$remoteUser@$remoteHost" "$Command"
+}
+
+function Invoke-SCP-Command {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string] $Source,
+        [Parameter(Mandatory = $true)]
+        [string] $Destination
+    )
+
+    scp $Source "${remoteUser}@${remoteHost}:${Destination}"
 }
 
 function New-SSH-Key {
     [CmdletBinding()]
     param([int] $KeySize = $sshKeySize)
+
     Write-Host "Generating SSH key with size $KeySize bits..." -ForegroundColor Cyan
     ssh-keygen -t rsa -b $KeySize -f $sshKeyPath -N ""
 }
@@ -30,8 +52,7 @@ function Test-SSH-Key-Upload {
     $testResult = Invoke-SSH-Command -Command "echo 'SSH connection successful'" 2>&1
             
     if ($LASTEXITCODE -eq 0) {
-        Write-Host "Success: " -ForegroundColor Green -NoNewline
-        Write-Host "$testResult"
+        Write-Host "$testResult" -ForegroundColor Green
     }
     else {
         Write-Warning "SSH authentication test failed. Error: $testResult"
@@ -78,7 +99,7 @@ function Set-SSH-Auth {
     }
     elseif ($generateKey -eq "n") {
         Write-Host "Password authentication selected" -ForegroundColor Cyan
-        if ([string]::IsNullOrWhiteSpace -eq $remoteHostPassword) {
+        if ([string]::IsNullOrWhiteSpace($remoteHostPassword)) {
             $remoteHostPassword = Read-Host "Remote host password"
         }
     }
@@ -91,7 +112,7 @@ function Set-SSH-Auth {
 function New-GitLab-Directories {
     try {
         Write-Host "Creating GitLab directories on $remoteHost..." -ForegroundColor Cyan
-        $result = Invoke-SSH-Command "mkdir -p ~/gitlab/config && mkdir -p ~/gitlab/data && mkdir -p ~/gitlab/logs"
+        $result = Invoke-SSH-Command "mkdir -p $gitlabDir/config && mkdir -p $gitlabDir/data && mkdir -p $gitlabDir/logs"
         
         if ($LASTEXITCODE -eq 0) {
             Write-Host "GitLab directories created successfully" -ForegroundColor Green
@@ -105,9 +126,81 @@ function New-GitLab-Directories {
         throw
     }
 }
-function Set-Up-GitLab {
-    New-GitLab-Directories
+
+function New-GitLab-Url {
+    [CmdletBinding()]
+    param ([string] $Domain)
+
+    $newDomain = Read-Host "Please enter the GitLab domain ($gitlabUrl)"
+    if (-not [string]::IsNullOrWhiteSpace($newDomain)) {
+        $global:gitlabUrl = "gitlab.$newDomain"
+    }
+    Write-Host "Using GitLab domain: $global:gitlabUrl" -ForegroundColor Cyan
 }
 
+function New-Root-Password {
+    $newPassword = Read-Host "Initial root password ($gitlabRootPassword)"
+    if (-not [string]::IsNullOrWhiteSpace($newPassword)) {
+        $global:gitlabRootPassword = $newPassword
+    }
+    
+    Write-Host "Initial GitLab root password: $global:gitlabRootPassword" -ForegroundColor Cyan
+}
+
+function Set-GitLab-Environment-File {
+    Write-Host "Creating new .env file" -ForegroundColor Cyan
+
+    # Ensure source file exists
+    if (-not (Test-Path $dotEnvExampleFile -PathType Leaf)) {
+        Write-Host "Error: Example file '$dotEnvExampleFile' not found!" -ForegroundColor Red
+        return
+    }
+
+    # Remove existing .env file if it exists
+    if (Test-Path $dotEnvFile -PathType Leaf) {
+        Remove-Item $dotEnvFile -Force
+        Write-Host "Deleted existing '$dotEnvFile' file" -ForegroundColor Yellow
+    }
+
+    # Copy the example file
+    Write-Host "Copying '$dotEnvExampleFile' to '$dotEnvFile'" -ForegroundColor Cyan
+    Copy-Item -Path $dotEnvExampleFile -Destination $dotEnvFile
+
+    # Read content of the .env file
+    $content = Get-Content -Raw -Path $dotEnvFile
+
+    # Ensure variables are not null
+    if (-not $gitlabUrl -or -not $gitlabRootPassword) {
+        Write-Host "Error: GitLab URL or root password is missing!" -ForegroundColor Red
+        return
+    }
+
+    # Replace lines with new values
+    $content = $content -replace '^GITLAB_URL=.*$', "GITLAB_URL=`"$gitlabUrl`"" `
+        -replace '^GITLAB_INITIAL_ROOT_PASSWORD=.*$', "GITLAB_INITIAL_ROOT_PASSWORD=`"$gitlabRootPassword`""
+
+    # Save the modified content
+    Set-Content -Path $dotEnvFile -Value $content -Encoding UTF8
+
+    Write-Host "Uploading '$dotEnvFile' to $remoteHost" -ForegroundColor Cyan
+    Invoke-SCP-Command -Source $dotEnvFile -Destination "$dockerDir"
+
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "Successfully uploaded '$dotEnvFile'" -ForegroundColor Green
+    }
+    else {
+        Write-Host "Error during file upload. Error code: ${LASTEXITCODE}" -ForegroundColor Red
+    }
+}
+
+function Set-Up-GitLab {
+    New-GitLab-Directories
+    New-GitLab-Url
+    New-Root-Password
+
+    Set-GitLab-Environment-File
+}
+
+# Execute functions
 Set-SSH-Auth
 Set-Up-GitLab
