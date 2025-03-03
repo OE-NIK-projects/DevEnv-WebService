@@ -1,9 +1,12 @@
+#!/usr/bin/env pwsh
+
 $remoteUser = "test"
 $remoteHost = "192.168.247.135"
 $remoteHostPassword = $null
 
-$sshKeyPath = "$env:USERPROFILE\.ssh\id_rsa"
-$sshPubKey = "$env:USERPROFILE\.ssh\id_rsa.pub"
+$homeDir = $env:HOME ?? $env:USERPROFILE
+$sshKeyPath = "$homeDir/.ssh/gitlab_id_rsa"
+$sshPubKey = "$sshKeyPath.pub"
 $sshKeySize = 4096
 
 $dockerDir = "~/docker"
@@ -11,14 +14,14 @@ $gitlabDir = "$dockerDir/gitlab"
 $gitlabUrl = "example.com"
 $gitlabRootPassword = "password"
 
-$dotEnvExampleFile = ".\.env-example"
-$dotEnvFile = ".\.env"
+$dotEnvExampleFile = "$PSScriptRoot/.env-example"
+$dotEnvFile = "$PSScriptRoot/.env"
 
 function Invoke-SSH-Command {
     [CmdletBinding()]
     param ([string] $Command = "")
 
-    ssh "$remoteUser@$remoteHost" "$Command"
+    ssh -i $sshKeyPath "$remoteUser@$remoteHost" "$Command"
 }
 
 function Invoke-SCP-Command {
@@ -30,7 +33,7 @@ function Invoke-SCP-Command {
         [string] $Destination
     )
 
-    scp $Source "${remoteUser}@${remoteHost}:${Destination}"
+    scp -i $sshKeyPath $Source "${remoteUser}@${remoteHost}:${Destination}"
 }
 
 function New-SSH-Key {
@@ -63,6 +66,15 @@ function Test-SSH-Key-Upload {
 function Set-SSH-Auth {
     $generateKey = Read-Host "Do you want to set up SSH public key authentication? (y/n)"
     if ($generateKey -eq "y") {
+        $newKeyPath = Read-Host "Private key path ($sshKeyPath)"
+        if (Test-Path $newKeyPath -IsValid -PathType Leaf) {
+            $sshKeyPath = $newKeyPath
+            $sshPubKey = "$sshKeyPath.pub"
+        }
+
+        Write-Host "Using " -NoNewline
+        Write-Host $sshKeyPath -ForegroundColor Cyan
+
         if (Test-Path $sshPubKey -PathType Leaf) {
             try {
                 Write-Host "Found existing SSH public key at " -NoNewline
