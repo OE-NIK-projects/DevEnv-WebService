@@ -11,10 +11,9 @@ $sshKeySize = 4096
 
 $dockerDir = "~/docker"
 $gitlabDir = "$dockerDir/gitlab"
-$gitlabUrl = "example.com"
-$gitlabRootPassword = "password"
+$global:gitlabUrl = "example.com"
+$global:gitlabRootPassword = "password"
 
-$dotEnvExampleFile = "$PSScriptRoot/.env-example"
 $dotEnvFile = "$PSScriptRoot/.env"
 
 function Invoke-SSH-Command {
@@ -143,7 +142,7 @@ function New-GitLab-Url {
     [CmdletBinding()]
     param ([string] $Domain)
 
-    $newDomain = Read-Host "Please enter the GitLab domain ($gitlabUrl)"
+    $newDomain = Read-Host "Please enter the GitLab domain ($global:gitlabUrl)"
     if (-not [string]::IsNullOrWhiteSpace($newDomain)) {
         $global:gitlabUrl = "gitlab.$newDomain"
     }
@@ -151,54 +150,44 @@ function New-GitLab-Url {
 }
 
 function New-Root-Password {
-    $newPassword = Read-Host "Initial root password ($gitlabRootPassword)"
+    $newPassword = Read-Host "Initial root password ($global:gitlabRootPassword)"
     if (-not [string]::IsNullOrWhiteSpace($newPassword)) {
         $global:gitlabRootPassword = $newPassword
     }
     
-    Write-Host "Initial GitLab root password: $global:gitlabRootPassword" -ForegroundColor Cyan
+    Write-Host "Initial root password: $global:gitlabRootPassword" -ForegroundColor Cyan
+}
+
+function New-Environment-File {
+    [CmdletBinding()]
+    param ([string] $Domain, [string] $RootPasswd)
+    
+    $content = @"
+#Gitlab pre-configuration
+GITLAB_CONTAINER_NAME="gitlab"
+GITLAB_URL="${Domain}"
+GITLAB_SSH_PORT=2424
+GITLAB_HOME_DIR="./gitlab"
+GITLAB_INITIAL_ROOT_PASSWORD="${RootPasswd}"
+
+#Restricting Gitlab memory usage
+GITLAB_PUMA_WORKER_PROCESSES=0
+GITLAB_PROMETHEUS_MONITORING=false
+GITLAB_SIDEKIQ_MAX_CONCURRENCY=10
+"@
+    
+    $content | Out-File .env -Encoding UTF8 -Force
 }
 
 function Set-GitLab-Environment-File {
-    Write-Host "Creating new .env file" -ForegroundColor Cyan
+    Write-Host "Creating '.env' file" -ForegroundColor Cyan
+    New-Environment-File -Domain $global:gitlabUrl -RootPasswd $global:gitlabRootPassword
 
-    # Ensure source file exists
-    if (-not (Test-Path $dotEnvExampleFile -PathType Leaf)) {
-        Write-Host "Error: Example file '$dotEnvExampleFile' not found!" -ForegroundColor Red
-        return
-    }
-
-    # Remove existing .env file if it exists
-    if (Test-Path $dotEnvFile -PathType Leaf) {
-        Remove-Item $dotEnvFile -Force
-        Write-Host "Deleted existing '$dotEnvFile' file" -ForegroundColor Yellow
-    }
-
-    # Copy the example file
-    Write-Host "Copying '$dotEnvExampleFile' to '$dotEnvFile'" -ForegroundColor Cyan
-    Copy-Item -Path $dotEnvExampleFile -Destination $dotEnvFile
-
-    # Read content of the .env file
-    $content = Get-Content -Raw -Path $dotEnvFile
-
-    # Ensure variables are not null
-    if (-not $gitlabUrl -or -not $gitlabRootPassword) {
-        Write-Host "Error: GitLab URL or root password is missing!" -ForegroundColor Red
-        return
-    }
-
-    # Replace lines with new values
-    $content = $content -replace '^GITLAB_URL=.*$', "GITLAB_URL=`"$gitlabUrl`"" `
-        -replace '^GITLAB_INITIAL_ROOT_PASSWORD=.*$', "GITLAB_INITIAL_ROOT_PASSWORD=`"$gitlabRootPassword`""
-
-    # Save the modified content
-    Set-Content -Path $dotEnvFile -Value $content -Encoding UTF8
-
-    Write-Host "Uploading '$dotEnvFile' to $remoteHost" -ForegroundColor Cyan
+    Write-Host "Uploading '.env' to $remoteHost" -ForegroundColor Cyan
     Invoke-SCP-Command -Source $dotEnvFile -Destination "$dockerDir"
 
     if ($LASTEXITCODE -eq 0) {
-        Write-Host "Successfully uploaded '$dotEnvFile'" -ForegroundColor Green
+        Write-Host "Successfully uploaded '.env'" -ForegroundColor Green
     }
     else {
         Write-Host "Error during file upload. Error code: ${LASTEXITCODE}" -ForegroundColor Red
@@ -209,10 +198,12 @@ function Set-Up-GitLab {
     New-GitLab-Directories
     New-GitLab-Url
     New-Root-Password
-
     Set-GitLab-Environment-File
 }
 
 # Execute functions
+Write-Host "[SSH Public Key Authentication]" -ForegroundColor Magenta
 Set-SSH-Auth
+
+Write-Host "[Gitlab Configuration]" -ForegroundColor Magenta
 Set-Up-GitLab
