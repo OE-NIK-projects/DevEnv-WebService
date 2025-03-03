@@ -15,6 +15,7 @@ $global:gitlabUrl = "example.com"
 $global:gitlabRootPassword = "password"
 
 $dotEnvFile = "$PSScriptRoot/.env"
+$dockerComposeFile = "$PSScriptRoot/docker-compose.yml"
 
 function Invoke-SSH-Command {
     [CmdletBinding()]
@@ -179,7 +180,7 @@ GITLAB_SIDEKIQ_MAX_CONCURRENCY=10
     $content | Out-File .env -Encoding UTF8 -Force
 }
 
-function Set-GitLab-Environment-File {
+function Set-GitLab-Environment {
     Write-Host "Creating '.env' file" -ForegroundColor Cyan
     New-Environment-File -Domain $global:gitlabUrl -RootPasswd $global:gitlabRootPassword
 
@@ -188,8 +189,16 @@ function Set-GitLab-Environment-File {
 
     if ($LASTEXITCODE -eq 0) {
         Write-Host "Successfully uploaded '.env'" -ForegroundColor Green
+    } else {
+        Write-Host "Error during file upload. Error code: ${LASTEXITCODE}" -ForegroundColor Red
     }
-    else {
+
+    Write-Host "Uploading 'docker-compose.yml' to $remoteHost" -ForegroundColor Cyan
+    Invoke-SCP-Command -Source $dockerComposeFile -Destination "$dockerDir"
+
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "Successfully uploaded 'docker-compose.yml'" -ForegroundColor Green
+    } else {
         Write-Host "Error during file upload. Error code: ${LASTEXITCODE}" -ForegroundColor Red
     }
 }
@@ -198,7 +207,7 @@ function Set-Up-GitLab {
     New-GitLab-Directories
     New-GitLab-Url
     New-Root-Password
-    Set-GitLab-Environment-File
+    Set-GitLab-Environment
 }
 
 # Execute functions
