@@ -10,32 +10,40 @@ A telepítés során az alapértelmezett beállításokat használjuk, kivéve a
 
 ---
 
-Miután a telepítés elkészült, frissítsük az **apt** csomagkezelőt:
+### Jelszó nélküli sudo konfiguráció
+
+### 1. A sudoers fájl szerkesztése
+
+A jelszó nélküli sudo beállításához biztonságosan kell módosítanu a sudoers fájlt. Ehhez a `visudo` parancsot ajánlott használni, mivel ez ellenőrzi a szintaxist a mentés előtt.
+
+```bash
+sudo visudo
+```
+
+### 2. A felhasználó hozzáadása
+
+A sudoers fájl végére illeszük be a következő sort (például, ha a felhasználó neve `ubuntu`):
+
+```bash
+ubuntu ALL=(ALL) NOPASSWD:ALL
+```
+
+Ez a beállítás lehetővé teszi, hogy az `ubuntu` felhasználó bármely parancsot futtasson sudo jogokkal anélkül, hogy jelszót kérne.
+
+### 3. A fájl mentése és kilépés
+
+- **Nano használata esetén:**  
+  - Mentés: `Ctrl+O`  
+  - Kilépés: `Ctrl+X`
+- **Vim használata esetén:**  
+  Írjuk be a `:wq` parancsot és nyomjuk meg az Entert a mentéshez és kilépéshez.
+
+### 4. A konfiguráció tesztelése
+
+Teszteljük a beállítást egy egyszerű sudo parancs futtatásával:
 
 ```bash
 sudo apt update
-sudo apt upgrade -y
 ```
 
----
-
-### Jogosultságok Beállítása
-
-Annak érdekében, hogy ne kelljen minden `docker` parancs előtt `sudo`-t írni, hozzáadjuk a felhasználót a `docker` csoporthoz:
-
-```bash
-sudo groupadd docker
-sudo usermod -aG docker $USER
-```
-
-Ajánlott továbbá a felhasználót a `sudo` csoporthoz is hozzáadni:
-
-```bash
-sudo usermod -aG sudo $USER
-```
-
-Jelentkezzünk be újra a felhasználóba, hogy a változások érvényesüljenek.
-
-```bash
-su - $USER
-```
+Ha minden rendben van, a parancs futtatása során nem kér jelszót.
