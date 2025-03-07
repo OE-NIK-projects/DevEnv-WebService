@@ -14,9 +14,10 @@ $sshKeySize = 4096
 $dockerDir = "~/docker"
 $gitlabDir = "$dockerDir/gitlab"
 
-$global:serverDomain = "example.com"
-$global:webAppDomain = "webapp.$global:serverDomain"
-$global:gitlabDomain = "gitlab.$global:serverDomain"
+$serverDomain = "boilerplate.hu"
+$webAppDomain = "webapp.$serverDomain"
+$gitlabDomain = "gitlab.$serverDomain"
+$gitlabRootUsername = "root"
 $global:gitlabRootPassword = "Password1!"
 
 $dotEnvFile = "$PSScriptRoot/.env"
@@ -24,26 +25,35 @@ $dockerComposeFile = "$PSScriptRoot/docker-compose.yml"
 
 function Set-Remote-Access {
     while ($true) {
+        # Ask for remote username
         $userInput = Read-Host "Enter remote username"
-        if (-not [string]::IsNullOrWhiteSpace($userInput)) {
-            $global:remoteUser = $userInput
-            break
+        if ([string]::IsNullOrWhiteSpace($userInput)) {
+            Write-Host "Username cannot be empty. Please enter a valid username." -ForegroundColor Red
+            continue
         }
-        Write-Host "Username cannot be empty. Please enter a valid username." -ForegroundColor Red
-    }
 
-    while ($true) {
+        # Ask for remote host
         $hostInput = Read-Host "Enter remote host (IP or hostname)"
-        if (-not [string]::IsNullOrWhiteSpace($hostInput)) {
-            $global:remoteHost = $hostInput
-            break
+        if ([string]::IsNullOrWhiteSpace($hostInput)) {
+            Write-Host "Host cannot be empty. Please enter a valid host." -ForegroundColor Red
+            continue
         }
-        Write-Host "Host cannot be empty. Please enter a valid host." -ForegroundColor Red
-    }
 
-    Write-Host "Remote user: $global:remoteUser" -ForegroundColor Green
-    Write-Host "Remote host: $global:remoteHost" -ForegroundColor Green
-    #TODO: Test with ping, and/or start over
+        # Test connection to the host
+        Write-Host "Pinging $hostInput to verify connectivity..." -ForegroundColor Yellow
+        $pingResult = Test-Connection -ComputerName $hostInput -Count 2 -Quiet
+
+        if ($pingResult) {
+            Write-Host "Host is reachable." -ForegroundColor Green
+            $global:remoteUser = $userInput
+            $global:remoteHost = $hostInput
+            Write-Host "Remote: $global:remoteUser@$global:remoteHost" -ForegroundColor Green
+            return
+        }
+        else {
+            Write-Host "Host is unreachable. Please re-enter both username and host." -ForegroundColor Red
+        }
+    }
 }
 
 function Invoke-SSH-Command {
@@ -82,7 +92,7 @@ function Send-SSH-Key {
 function Test-SSH-Key-Upload {
     Write-Host "Testing SSH connection..." -ForegroundColor Cyan
     $testResult = Invoke-SSH-Command -Command "echo 'SSH connection successful'" 2>&1
-            
+
     if ($LASTEXITCODE -eq 0) {
         Write-Host "$testResult" -ForegroundColor Green
     }
@@ -108,7 +118,7 @@ function Set-SSH-Auth {
             try {
                 Write-Host "Found existing SSH public key at " -NoNewline
                 Write-Host "$sshPubKey" -ForegroundColor Cyan
-                
+
                 Send-SSH-Key
                 Test-SSH-Key-Upload
             }
@@ -119,7 +129,7 @@ function Set-SSH-Auth {
         else {
             Write-Host "No existing key found, creating new one" -ForegroundColor Yellow
             $keySizeInput = Read-Host "SSH key size ($sshKeySize)"
-        
+
             if ([string]::IsNullOrWhiteSpace($keySizeInput)) {
                 Write-Host "Using default key size: $sshKeySize" -ForegroundColor Cyan
                 $keySize = $sshKeySize
@@ -159,7 +169,7 @@ function New-GitLab-Directories {
     try {
         Write-Host "Creating GitLab directories on $global:remoteHost..." -ForegroundColor Cyan
         $result = Invoke-SSH-Command "mkdir -p $gitlabDir/config && mkdir -p $gitlabDir/data && mkdir -p $gitlabDir/logs"
-        
+
         if ($LASTEXITCODE -eq 0) {
             Write-Host "GitLab directories created successfully" -ForegroundColor Green
         }
@@ -173,24 +183,9 @@ function New-GitLab-Directories {
     }
 }
 
-function New-Server-Domain {
-    [CmdletBinding()]
-    param ([string] $Domain)
-
-    $newDomain = Read-Host "Please enter the server domain name ($global:serverDomain)"
-    if (-not [string]::IsNullOrWhiteSpace($newDomain)) {
-        $global:serverDomain = "$newDomain"
-        $global:webAppDomain = "webapp.$newDomain"
-        $global:gitlabDomain = "gitlab.$newDomain"
-    }
-    Write-Host "Server domain: $global:serverDomain" -ForegroundColor Green
-    Write-Host "WebApp domain: $global:webAppDomain" -ForegroundColor Green
-    Write-Host "GitLab domain: $global:gitlabDomain" -ForegroundColor Green
-}
-
 function New-Root-Password {
     while ($true) {
-        $newPassword = Read-Host "Initial root password ($global:gitlabRootPassword)"
+        $newPassword = Read-Host "Initial admin password ($global:gitlabRootPassword)"
 
         # If input is empty, use the predefined password
         if ([string]::IsNullOrWhiteSpace($newPassword)) {
@@ -230,7 +225,7 @@ function New-Root-Password {
 
         # If password meets all requirements, store it
         $global:gitlabRootPassword = $newPassword
-        Write-Host "Initial root password set successfully!" -ForegroundColor Green
+        Write-Host "Initial admin password set successfully!" -ForegroundColor Green
         return
     }
 }
@@ -238,7 +233,7 @@ function New-Root-Password {
 function New-Environment-File {
     [CmdletBinding()]
     param ([string] $Domain, [string] $RootPasswd)
-    
+
     $content = @"
 #Gitlab pre-configuration
 GITLAB_CONTAINER_NAME="gitlab"
@@ -252,13 +247,13 @@ GITLAB_PUMA_WORKER_PROCESSES=0
 GITLAB_PROMETHEUS_MONITORING=false
 GITLAB_SIDEKIQ_MAX_CONCURRENCY=10
 "@
-    
+
     $content | Out-File .env -Encoding UTF8 -Force
 }
 
 function Set-GitLab-Environment {
     Write-Host "Creating and Uploading '.env' file to $global:remoteHost..." -ForegroundColor Cyan
-    New-Environment-File -Domain $global:serverDomain -RootPasswd $global:gitlabRootPassword
+    New-Environment-File -Domain $serverDomain -RootPasswd $global:gitlabRootPassword
     Invoke-SCP-Command -Source $dotEnvFile -Destination "$dockerDir"
 
     if ($LASTEXITCODE -eq 0) {
@@ -279,11 +274,26 @@ function Set-GitLab-Environment {
     }
 }
 
+function Start-GitLab-Docker {
+    Write-Host "Starting GitLab..." -ForegroundColor Cyan
+    Invoke-SSH-Command "sudo docker compose -f $dockerDir up -d"
+}
+
+function Write-Access {
+    Write-Host "Web: https://$serverDomain" -ForegroundColor DarkBlue
+    Write-Host "WebApp: https://$webAppDomain" -ForegroundColor DarkBlue
+    Write-Host "GitLab: https://$gitlabDomain" -ForegroundColor DarkBlue
+    Write-Host "GitLab admin username: $gitlabRootUsername" -ForegroundColor DarkBlue
+    Write-Host "GitLab admin initial password: $global:gitlabRootPassword" -ForegroundColor DarkBlue
+    Write-Warning "Initial password should be changed ASAP!"
+    Write-Host "Wait a few minutes for GitLab to boot..." -ForegroundColor Cyan
+}
+
 function Set-Up-GitLab {
     New-GitLab-Directories
-    New-Server-Domain
     New-Root-Password
     Set-GitLab-Environment
+    Start-GitLab-Docker
 }
 
 # Execute functions
@@ -298,3 +308,8 @@ Set-Server-Config
 
 Write-Host "[Gitlab Configuration]" -ForegroundColor Magenta
 Set-Up-GitLab
+
+#TODO: Automate webserver and webapp
+
+Write-Host "[Access]" -ForegroundColor Magenta
+Write-Access
