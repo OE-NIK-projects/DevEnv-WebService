@@ -195,7 +195,7 @@ GITLAB_SIDEKIQ_MAX_CONCURRENCY=10
 
 function Set-GitlabEnvironment {
     Write-Host "Setting up GitLab environment..." -ForegroundColor Cyan
-    New-EnvironmentFile -Domain $Config.ServerDomain -Passwd $Config.GitlabRootPassword
+    New-EnvironmentFile -Domain $Domains.Gitlab -Passwd $Config.GitlabRootPassword
     
     # Validate that the source files exist locally
     if (-not (Test-Path $Paths.DotEnvFile)) {
