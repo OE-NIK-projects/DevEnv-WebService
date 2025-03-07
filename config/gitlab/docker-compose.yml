@@ -1,0 +1,22 @@
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:17.9.0-ce.0
+    container_name: '${GITLAB_CONTAINER_NAME}'
+    restart: always
+    hostname: '${GITLAB_URL}'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'https://${GITLAB_URL}:443'
+        gitlab_rails['gitlab_shell_ssh_port'] = '${GITLAB_SSH_PORT}'
+        gitlab_rails['initial_root_password'] = '${GITLAB_INITIAL_ROOT_PASSWORD}'
+        puma['worker_processes'] = ${GITLAB_PUMA_WORKER_PROCESSES}
+        prometheus_monitoring['enable'] = ${GITLAB_PROMETHEUS_MONITORING}
+        sidekiq['max_concurrency'] = ${GITLAB_SIDEKIQ_MAX_CONCURRENCY}
+    ports:
+      - '443:443'
+      - '${GITLAB_SSH_PORT}:22'
+    volumes:
+      - '${GITLAB_HOME_DIR}/config:/etc/gitlab'
+      - '${GITLAB_HOME_DIR}/logs:/var/log/gitlab'
+      - '${GITLAB_HOME_DIR}/data:/var/gitlab'
+    shm_size: '256m'
