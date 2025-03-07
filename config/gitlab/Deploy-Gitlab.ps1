@@ -1,151 +1,129 @@
 #!/usr/bin/env pwsh
 
-$global:remoteUser = $null
-$global:remoteHost = $null
-
-#$global:remoteUser = "test"
-#$global:remoteHost = "192.168.247.135"
-
-$homeDir = $env:HOME ?? $env:USERPROFILE
-$sshKeyPath = "$homeDir/.ssh/gitlab_id_rsa"
-$sshPubKey = "$sshKeyPath.pub"
-$sshKeySize = 4096
-
-$dockerDir = "~/docker"
-$gitlabDir = "$dockerDir/gitlab"
-
-$serverDomain = "boilerplate.hu"
-$webAppDomain = "webapp.$serverDomain"
-$gitlabDomain = "gitlab.$serverDomain"
-$gitlabRootUsername = "root"
-$global:gitlabRootPassword = "Password1!"
-
-$dotEnvFile = "$PSScriptRoot/.env"
-$dockerComposeFile = "$PSScriptRoot/docker-compose.yml"
-
-function Set-Remote-Access {
-    while ($true) {
-        # Ask for remote username
-        $userInput = Read-Host "Enter remote username"
-        if ([string]::IsNullOrWhiteSpace($userInput)) {
-            Write-Host "Username cannot be empty. Please enter a valid username." -ForegroundColor Red
-            continue
-        }
-
-        # Ask for remote host
-        $hostInput = Read-Host "Enter remote host (IP or hostname)"
-        if ([string]::IsNullOrWhiteSpace($hostInput)) {
-            Write-Host "Host cannot be empty. Please enter a valid host." -ForegroundColor Red
-            continue
-        }
-
-        # Test connection to the host
-        Write-Host "Pinging $hostInput to verify connectivity..." -ForegroundColor Yellow
-        $pingResult = Test-Connection -ComputerName $hostInput -Count 2 -Quiet
-
-        if ($pingResult) {
-            Write-Host "Host is reachable." -ForegroundColor Green
-            $global:remoteUser = $userInput
-            $global:remoteHost = $hostInput
-            Write-Host "Remote: $global:remoteUser@$global:remoteHost" -ForegroundColor Green
-            return
-        }
-        else {
-            Write-Host "Host is unreachable. Please re-enter both username and host." -ForegroundColor Red
-        }
-    }
+# Configuration Object
+$Config = @{
+    RemoteUser         = $null
+    RemoteHost         = $null
+    HomeDir            = $env:HOME ?? $env:USERPROFILE
+    SSHKeySize         = 4096
+    DockerDir          = "~/docker"
+    ServerDomain       = "boilerplate.hu"
+    GitlabRootUsername = "root"
+    GitlabRootPassword = "Password1!"
+    ScriptRoot         = $PSScriptRoot
 }
 
-function Invoke-SSH-Command {
-    [CmdletBinding()]
-    param ([string] $Command = "")
-
-    ssh -i $sshKeyPath "$global:remoteUser@$global:remoteHost" "$Command"
+# Derived Paths
+$Paths = @{
+    SSHKeyPath        = Join-Path $Config.HomeDir ".ssh/gitlab_id_rsa"
+    SSHPubKey         = Join-Path $Config.HomeDir ".ssh/gitlab_id_rsa.pub"
+    GitlabDir         = Join-Path $Config.DockerDir "gitlab"
+    DotEnvFile        = Join-Path $Config.ScriptRoot ".env"
+    DockerComposeFile = Join-Path $Config.ScriptRoot "docker-compose.yml"
 }
 
-function Invoke-SCP-Command {
-    [CmdletBinding()]
-    param(
+# Domain Configuration
+$Domains = @{
+    WebApp = "webapp.$($Config.ServerDomain)"
+    Gitlab = "gitlab.$($Config.ServerDomain)"
+}
+
+# SSH Helper Functions
+function Invoke-SSH {
+    param ([string]$Command)
+    ssh -i $Paths.SSHKeyPath "$($Config.RemoteUser)@$($Config.RemoteHost)" "$Command"
+}
+
+function Invoke-SCP {
+    param ([string]$Source, [string]$Destination)
+    scp -i $Paths.SSHKeyPath $Source "$($Config.RemoteUser)@$($Config.RemoteHost):$Destination"
+}
+
+function Test-CommandSuccess {
+    param (
         [Parameter(Mandatory = $true)]
-        [string] $Source,
+        [string]$SuccessMessage,
+        
         [Parameter(Mandatory = $true)]
-        [string] $Destination
+        [string]$FailureMessage,
+        
+        [Parameter(Mandatory = $false)]
+        $Result = ""
     )
-
-    scp -i $sshKeyPath $Source "${global:remoteUser}@${global:remoteHost}:${Destination}"
-}
-
-function New-SSH-Key {
-    [CmdletBinding()]
-    param([int] $KeySize = $sshKeySize)
-
-    Write-Host "Generating SSH key with size $KeySize bits..." -ForegroundColor Cyan
-    ssh-keygen -t rsa -b $KeySize -f $sshKeyPath -N ""
-}
-
-function Send-SSH-Key {
-    $pubKeyContent = Get-Content $sshPubKey
-    Write-Host "Uploading SSH public key to $global:remoteHost..." -ForegroundColor Cyan
-    Invoke-SSH-Command -Command "mkdir -p ~/.ssh && echo '$pubKeyContent' >> ~/.ssh/authorized_keys"
-}
-
-function Test-SSH-Key-Upload {
-    Write-Host "Testing SSH connection..." -ForegroundColor Cyan
-    $testResult = Invoke-SSH-Command -Command "echo 'SSH connection successful'" 2>&1
-
+    
+    $resultString = $(if ($null -eq $Result) { "" } else { $Result | Out-String }).Trim()
+    
     if ($LASTEXITCODE -eq 0) {
-        Write-Host "$testResult" -ForegroundColor Green
+        Write-Host $SuccessMessage -ForegroundColor Green
+        return $true
     }
     else {
-        Write-Warning "SSH authentication test failed. Error: $testResult"
-        Write-Host "Tip: Check key permissions and server configuration" -ForegroundColor Yellow
+        Write-Warning "$FailureMessage$resultString : Exit code $LASTEXITCODE"
+        return $false
     }
 }
 
-function Set-SSH-Auth {
-    $generateKey = Read-Host "Do you want to set up SSH public key authentication? (Y/n)"
-    if ([string]::IsNullOrWhiteSpace($generateKey) -or "y" -eq $generateKey) {
-        $newKeyPath = Read-Host "Private key path ($sshKeyPath)"
-        if (Test-Path $newKeyPath -IsValid -PathType Leaf) {
-            $sshKeyPath = $newKeyPath
-            $sshPubKey = "$sshKeyPath.pub"
+# Core Functions
+function Set-RemoteAccess {
+    while ($true) {
+        try {
+            $userInput = Read-Host "Enter remote username"
+            if ([string]::IsNullOrWhiteSpace($userInput)) { throw "Username cannot be empty" }
+
+            $hostInput = Read-Host "Enter remote host (IP or hostname)"
+            if ([string]::IsNullOrWhiteSpace($hostInput)) { throw "Host cannot be empty" }
+
+            Write-Host "Pinging $hostInput..." -ForegroundColor Yellow
+            if (Test-Connection -ComputerName $hostInput -Count 2 -Quiet) {
+                $Config.RemoteUser = $userInput
+                $Config.RemoteHost = $hostInput
+                Write-Host "Remote: $($Config.RemoteUser)@$($Config.RemoteHost)" -ForegroundColor Green
+                return
+            }
+            throw "Host is unreachable"
         }
-
-        Write-Host "Using " -NoNewline
-        Write-Host $sshKeyPath -ForegroundColor Cyan
-
-        if (Test-Path $sshPubKey -PathType Leaf) {
-            try {
-                Write-Host "Found existing SSH public key at " -NoNewline
-                Write-Host "$sshPubKey" -ForegroundColor Cyan
-
-                Send-SSH-Key
-                Test-SSH-Key-Upload
-            }
-            catch {
-                Write-Error "SSH key setup failed: $_"
-            }
+        catch {
+            Write-Host $_.Exception.Message -ForegroundColor Red
         }
-        else {
-            Write-Host "No existing key found, creating new one" -ForegroundColor Yellow
-            $keySizeInput = Read-Host "SSH key size ($sshKeySize)"
+    }
+}
 
-            if ([string]::IsNullOrWhiteSpace($keySizeInput)) {
-                Write-Host "Using default key size: $sshKeySize" -ForegroundColor Cyan
-                $keySize = $sshKeySize
-            }
-            elseif (-not [int]::TryParse($keySizeInput, [ref]$null)) {
-                Write-Warning "Invalid key size '$keySizeInput'. Using default size $sshKeySize"
-                $keySize = $sshKeySize
-            }
-            else {
-                $keySize = [int]$keySizeInput
-                Write-Host "Using key size: $keySize" -ForegroundColor Cyan
-            }
+function New-SSHKey {
+    param ([int]$KeySize = $Config.SSHKeySize)
+    Write-Host "Generating SSH key ($KeySize bits)..." -ForegroundColor Cyan
+    ssh-keygen -t rsa -b $KeySize -f $Paths.SSHKeyPath -N "" | Out-Null
+    if (-not (Test-CommandSuccess -SuccessMessage "SSH key generated" -FailureMessage "SSH key generation failed: ")) {
+        throw "SSH key generation failed"
+    }
+}
 
-            New-SSH-Key -KeySize $keySize
-            Send-SSH-Key
-            Test-SSH-Key-Upload
+function Send-SSHKey {
+    $pubKeyContent = Get-Content $Paths.SSHPubKey
+    Write-Host "Uploading SSH key..." -ForegroundColor Cyan
+    $result = Invoke-SSH -Command "mkdir -p ~/.ssh && echo '$pubKeyContent' >> ~/.ssh/authorized_keys"
+    Test-CommandSuccess -SuccessMessage "SSH key uploaded" -FailureMessage "SSH key upload failed: " -Result $result | Out-Null
+}
+
+function Test-SSHConnection {
+    Write-Host "Testing SSH..." -ForegroundColor Cyan
+    $result = Invoke-SSH -Command "echo 'SSH connection successful'" 2>&1
+    Test-CommandSuccess -SuccessMessage $result -FailureMessage "SSH test failed: " -Result $result | Out-Null
+}
+
+function Set-SSHAuthentication {
+    $choice = Read-Host "Setup SSH key authentication? (Y/n)"
+    if ([string]::IsNullOrWhiteSpace($choice) -or $choice -eq "y") {
+        try {
+            if (-not (Test-Path $Paths.SSHPubKey)) {
+                $sizeInput = Read-Host "SSH key size ($($Config.SSHKeySize))"
+                $keySize = if ([int]::TryParse($sizeInput, [ref]$null)) { $sizeInput } else { $Config.SSHKeySize }
+                New-SSHKey -KeySize $keySize
+            }
+            Send-SSHKey
+            Test-SSHConnection
+        }
+        catch {
+            Write-Error "SSH setup failed: $_"
         }
     }
     else {
@@ -154,162 +132,108 @@ function Set-SSH-Auth {
     }
 }
 
-function Set-Server-Config {
-    Write-Host "Updating repositories..." -ForegroundColor Cyan
-    Invoke-SSH-Command "sudo apt update -qq 2>/dev/null && sudo apt upgrade -y -qq 2>/dev/null"
+function Set-ServerConfiguration {
+    Write-Host "Configuring server..." -ForegroundColor Cyan
+    $updateResult = Invoke-SSH "sudo apt update -qq 2>/dev/null && sudo apt upgrade -y -qq 2>/dev/null"
+    Test-CommandSuccess -SuccessMessage "Server updated" -FailureMessage "Server update failed: " -Result $updateResult | Out-Null
 
-    Write-Host "Removing unused packages..." -ForegroundColor Cyan
-    Invoke-SSH-Command "sudo apt autoremove -y > /dev/null 2>&1"
+    $removeResult = Invoke-SSH "sudo apt autoremove -y > /dev/null 2>&1"
+    Test-CommandSuccess -SuccessMessage "Unused packages removed" -FailureMessage "Package removal failed: " -Result $removeResult | Out-Null
 
-    Write-Host "Adding '$global:remoteUser' user to 'docker' and 'sudo' groups..." -ForegroundColor Cyan
-    Invoke-SSH-Command "sudo groupadd docker && sudo usermod -aG docker $USER && sudo usermod -aG sudo $USER"
+    $groupResult = Invoke-SSH "sudo groupadd docker; sudo usermod -aG docker,sudo $($Config.RemoteUser)"
+    Test-CommandSuccess -SuccessMessage "User groups configured" -FailureMessage "Group configuration failed: " -Result $groupResult | Out-Null
 }
 
-function New-GitLab-Directories {
-    try {
-        Write-Host "Creating GitLab directories on $global:remoteHost..." -ForegroundColor Cyan
-        $result = Invoke-SSH-Command "mkdir -p $gitlabDir/config && mkdir -p $gitlabDir/data && mkdir -p $gitlabDir/logs"
-
-        if ($LASTEXITCODE -eq 0) {
-            Write-Host "GitLab directories created successfully" -ForegroundColor Green
-        }
-        else {
-            Write-Warning "Failed to create GitLab directories. Error: $result"
-        }
-    }
-    catch {
-        Write-Error "Error creating GitLab directories: $_"
-        throw
+function New-GitlabDirectories {
+    Write-Host "Creating GitLab directories..." -ForegroundColor Cyan
+    $result = Invoke-SSH "mkdir -p $($Paths.GitlabDir)/{config,data,logs}"
+    if (-not (Test-CommandSuccess -SuccessMessage "Directories created" -FailureMessage "Failed to create directories: " -Result $result)) {
+        throw "Directory creation failed"
     }
 }
 
-function New-Root-Password {
+function Set-GitlabPassword {
     while ($true) {
-        $newPassword = Read-Host "Initial admin password ($global:gitlabRootPassword)"
-
-        # If input is empty, use the predefined password
-        if ([string]::IsNullOrWhiteSpace($newPassword)) {
-            Write-Host "Using default password: $global:gitlabRootPassword" -ForegroundColor Yellow
-            return
-        }
-
-        # Validate password length (at least 8 characters)
-        if ($newPassword.Length -lt 8) {
-            Write-Host "Password must be at least 8 characters long." -ForegroundColor Red
+        $newPass = Read-Host "Initial root password ($($Config.GitlabRootPassword))"
+        if ([string]::IsNullOrWhiteSpace($newPass)) { return }
+        
+        if ($newPass.Length -lt 8 -or
+            $newPass -cnotmatch '[A-Z]' -or
+            $newPass -cnotmatch '[a-z]' -or
+            $newPass -notmatch '\d' -or
+            $newPass -notmatch '[!@#$%^&*()]') {
+            Write-Host "Password must be 8+ chars with upper, lower, number, and special char" -ForegroundColor Red
             continue
         }
-
-        # Check for at least one uppercase letter (A-Z)
-        if ($newPassword -cnotmatch '[A-Z]') {
-            Write-Host "Password must contain at least one UPPERCASE letter (A-Z)." -ForegroundColor Red
-            continue
-        }
-
-        # Check for at least one lowercase letter (a-z)
-        if ($newPassword -cnotmatch '[a-z]') {
-            Write-Host "Password must contain at least one lowercase letter (a-z)." -ForegroundColor Red
-            continue
-        }
-
-        # Check for at least one number (0-9)
-        if ($newPassword -notmatch '\d') {
-            Write-Host "Password must contain at least one number (0-9)." -ForegroundColor Red
-            continue
-        }
-
-        # Check for at least one special character
-        if ($newPassword -notmatch '[!@#$%^&*()]') {
-            Write-Host "Password must contain at least one special character (!@#$%^&*())." -ForegroundColor Red
-            continue
-        }
-
-        # If password meets all requirements, store it
-        $global:gitlabRootPassword = $newPassword
-        Write-Host "Initial admin password set successfully!" -ForegroundColor Green
+        $Config.GitlabRootPassword = $newPass
+        Write-Host "Password set" -ForegroundColor Green
         return
     }
 }
 
-function New-Environment-File {
-    [CmdletBinding()]
-    param ([string] $Domain, [string] $RootPasswd)
-
-    $content = @"
-#Gitlab pre-configuration
+function New-EnvironmentFile {
+    param ([string]$Domain, [string]$Passwd)
+    $envContent = @"
 GITLAB_CONTAINER_NAME="gitlab"
-GITLAB_URL="${Domain}"
+GITLAB_URL="$Domain"
 GITLAB_SSH_PORT=2424
 GITLAB_HOME_DIR="./gitlab"
-GITLAB_INITIAL_ROOT_PASSWORD="${RootPasswd}"
-
-#Restricting Gitlab memory usage
+GITLAB_INITIAL_ROOT_PASSWORD="$Passwd"
 GITLAB_PUMA_WORKER_PROCESSES=0
 GITLAB_PROMETHEUS_MONITORING=false
 GITLAB_SIDEKIQ_MAX_CONCURRENCY=10
 "@
-
-    $content | Out-File .env -Encoding UTF8 -Force
+    $envContent | Out-File $Paths.DotEnvFile -Encoding UTF8 -Force
 }
 
-function Set-GitLab-Environment {
-    Write-Host "Creating and Uploading '.env' file to $global:remoteHost..." -ForegroundColor Cyan
-    New-Environment-File -Domain $serverDomain -RootPasswd $global:gitlabRootPassword
-    Invoke-SCP-Command -Source $dotEnvFile -Destination "$dockerDir"
-
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "Successfully uploaded '.env'" -ForegroundColor Green
-    }
-    else {
-        Write-Host "Error during file upload. Error code: ${LASTEXITCODE}" -ForegroundColor Red
-    }
-
-    Write-Host "Uploading 'docker-compose.yml' to $global:remoteHost..." -ForegroundColor Cyan
-    Invoke-SCP-Command -Source $dockerComposeFile -Destination "$dockerDir"
-
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "Successfully uploaded 'docker-compose.yml'" -ForegroundColor Green
-    }
-    else {
-        Write-Host "Error during file upload. Error code: ${LASTEXITCODE}" -ForegroundColor Red
-    }
+function Set-GitlabEnvironment {
+    Write-Host "Setting up GitLab environment..." -ForegroundColor Cyan
+    New-EnvironmentFile -Domain $Config.ServerDomain -Password $Config.GitlabRootPassword
+    
+    Invoke-SCP -Source $Paths.DotEnvFile -Destination $Config.DockerDir
+    Invoke-SCP -Source $Paths.DockerComposeFile -Destination $Config.DockerDir
+    
+    Test-CommandSuccess -SuccessMessage "Files uploaded" -FailureMessage "Upload failed: " | Out-Null
 }
 
-function Start-GitLab-Docker {
+function Start-Gitlab {
     Write-Host "Starting GitLab..." -ForegroundColor Cyan
-    Invoke-SSH-Command "sudo docker compose -f $dockerDir up -d"
+    $result = Invoke-SSH "sudo docker compose -f $($Config.DockerDir)/docker-compose.yml up -d"
+    Test-CommandSuccess -SuccessMessage "GitLab started" -FailureMessage "GitLab start failed: " -Result $result | Out-Null
 }
 
-function Write-Access {
-    Write-Host "Web: https://$serverDomain" -ForegroundColor DarkBlue
-    Write-Host "WebApp: https://$webAppDomain" -ForegroundColor DarkBlue
-    Write-Host "GitLab: https://$gitlabDomain" -ForegroundColor DarkBlue
-    Write-Host "GitLab admin username: $gitlabRootUsername" -ForegroundColor DarkBlue
-    Write-Host "GitLab admin initial password: $global:gitlabRootPassword" -ForegroundColor DarkBlue
-    Write-Warning "Initial password should be changed ASAP!"
-    Write-Host "Wait a few minutes for GitLab to boot..." -ForegroundColor Cyan
+function Write-AccessInfo {
+    Write-Host "Web: https://$($Config.ServerDomain)" -ForegroundColor DarkBlue
+    Write-Host "WebApp: https://$($Domains.WebApp)" -ForegroundColor DarkBlue
+    Write-Host "GitLab: https://$($Domains.Gitlab)" -ForegroundColor DarkBlue
+    Write-Host "Username: $($Config.GitlabRootUsername)" -ForegroundColor DarkBlue
+    Write-Host "Password: $($Config.GitlabRootPassword)" -ForegroundColor DarkBlue
+    Write-Warning "Change initial root password ASAP!"
+    Write-Host "Wait a few minutes for GitLab to boot completely..." -ForegroundColor Cyan
 }
 
-function Set-Up-GitLab {
-    New-GitLab-Directories
-    New-Root-Password
-    Set-GitLab-Environment
-    Start-GitLab-Docker
+function Setup-Gitlab {
+    try {
+        New-GitlabDirectories
+        Set-GitlabPassword
+        Set-GitlabEnvironment
+        Start-Gitlab
+    }
+    catch {
+        Write-Error "GitLab setup failed: $_"
+    }
 }
 
-# Execute functions
-Write-Host "[Remote Access]" -ForegroundColor Magenta
-Set-Remote-Access
+# Main Execution
+$steps = @(
+    @{ Name = "Remote Access"; Function = { Set-RemoteAccess } }
+    @{ Name = "SSH Authentication"; Function = { Set-SSHAuthentication } }
+    @{ Name = "Server Configuration"; Function = { Set-ServerConfiguration } }
+    @{ Name = "Gitlab Configuration"; Function = { Setup-Gitlab } }
+    @{ Name = "Access Information"; Function = { Write-AccessInfo } }
+)
 
-Write-Host "[SSH Public Key Authentication]" -ForegroundColor Magenta
-Set-SSH-Auth
-
-Write-Host "[Server Configuration]" -ForegroundColor Magenta
-Set-Server-Config
-
-Write-Host "[Gitlab Configuration]" -ForegroundColor Magenta
-Set-Up-GitLab
-
-#TODO: Automate webserver and webapp
-
-Write-Host "[Access]" -ForegroundColor Magenta
-Write-Access
+foreach ($step in $steps) {
+    Write-Host "[$($step.Name)]" -ForegroundColor Magenta
+    & $step.Function
+}
