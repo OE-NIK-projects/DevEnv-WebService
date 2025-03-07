@@ -148,7 +148,6 @@ function New-GitlabDirectories {
     Write-Host "Creating GitLab directories..." -ForegroundColor Cyan
     # Ensure the parent directory exists
     $result = Invoke-SSH "mkdir -p $($Config.DockerDir)"
-	Write-Host "mkdir -p $($Config.DockerDir)"
     if (-not (Test-CommandSuccess -SuccessMessage "Parent directory created" -FailureMessage "Failed to create parent directory: " -Result $result)) {
         throw "Parent directory creation failed"
     }
@@ -196,7 +195,7 @@ GITLAB_SIDEKIQ_MAX_CONCURRENCY=10
 
 function Set-GitlabEnvironment {
     Write-Host "Setting up GitLab environment..." -ForegroundColor Cyan
-    New-EnvironmentFile -Domain $Config.ServerDomain -Password $Config.GitlabRootPassword
+    New-EnvironmentFile -Domain $Config.ServerDomain -Passwd $Config.GitlabRootPassword
     
     # Validate that the source files exist locally
     if (-not (Test-Path $Paths.DotEnvFile)) {
