@@ -146,9 +146,17 @@ function Set-ServerConfiguration {
 
 function New-GitlabDirectories {
     Write-Host "Creating GitLab directories..." -ForegroundColor Cyan
-    $result = Invoke-SSH "mkdir -p $($Paths.GitlabDir)/{config,data,logs}"
-    if (-not (Test-CommandSuccess -SuccessMessage "Directories created" -FailureMessage "Failed to create directories: " -Result $result)) {
-        throw "Directory creation failed"
+    # Ensure the parent directory exists
+    $result = Invoke-SSH "mkdir -p $($Config.DockerDir)"
+	Write-Host "mkdir -p $($Config.DockerDir)"
+    if (-not (Test-CommandSuccess -SuccessMessage "Parent directory created" -FailureMessage "Failed to create parent directory: " -Result $result)) {
+        throw "Parent directory creation failed"
+    }
+
+    # Explicitly create each subdirectory
+    $result = Invoke-SSH "mkdir -p $($Paths.GitlabDir)/config && mkdir -p $($Paths.GitlabDir)/data && mkdir -p $($Paths.GitlabDir)/logs"
+    if (-not (Test-CommandSuccess -SuccessMessage "GitLab directories created" -FailureMessage "Failed to create GitLab directories: " -Result $result)) {
+        throw "GitLab directory creation failed"
     }
 }
 
@@ -190,15 +198,32 @@ function Set-GitlabEnvironment {
     Write-Host "Setting up GitLab environment..." -ForegroundColor Cyan
     New-EnvironmentFile -Domain $Config.ServerDomain -Password $Config.GitlabRootPassword
     
+    # Validate that the source files exist locally
+    if (-not (Test-Path $Paths.DotEnvFile)) {
+        Write-Error "Local .env file not found at $($Paths.DotEnvFile)"
+        throw ".env file missing"
+    }
+    if (-not (Test-Path $Paths.DockerComposeFile)) {
+        Write-Error "Local docker-compose.yml file not found at $($Paths.DockerComposeFile)"
+        throw "docker-compose.yml file missing"
+    }
+
+    # Upload .env file
     Invoke-SCP -Source $Paths.DotEnvFile -Destination $Config.DockerDir
+    if (-not (Test-CommandSuccess -SuccessMessage ".env file uploaded" -FailureMessage "Failed to upload .env file: ")) {
+        throw "Failed to upload .env file"
+    }
+
+    # Upload docker-compose.yml file
     Invoke-SCP -Source $Paths.DockerComposeFile -Destination $Config.DockerDir
-    
-    Test-CommandSuccess -SuccessMessage "Files uploaded" -FailureMessage "Upload failed: " | Out-Null
+    if (-not (Test-CommandSuccess -SuccessMessage "docker-compose.yml file uploaded" -FailureMessage "Failed to upload docker-compose.yml file: ")) {
+        throw "Failed to upload docker-compose.yml file"
+    }
 }
 
 function Start-Gitlab {
     Write-Host "Starting GitLab..." -ForegroundColor Cyan
-    $result = Invoke-SSH "sudo docker compose -f $($Config.DockerDir)/docker-compose.yml up -d"
+    $result = Invoke-SSH "cd $($Config.DockerDir) && sudo docker compose up -d"
     Test-CommandSuccess -SuccessMessage "GitLab started" -FailureMessage "GitLab start failed: " -Result $result | Out-Null
 }
 
