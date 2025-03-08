@@ -4,20 +4,24 @@
 <MudPopoverProvider/>
 <MudDialogProvider/>
 <MudSnackbarProvider/>
-<MudLayout>
-    <MudAppBar Elevation="1">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())"/>
-        <MudText Typo="Typo.h5" Class="ml-3">Application</MudText>
-        <MudSpacer/>
-        <MudIconButton Icon="@(DarkLightModeButtonIcon)" Color="Color.Inherit" OnClick="@DarkModeToggle"/>
-        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End"/>
-    </MudAppBar>
-    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+
+<MudLayout Class="d-flex flex-column mud-height-full" Style="min-height: 100vh;">
+    <MudAppBar Elevation="1" Dense="true">
         <NavMenu/>
-    </MudDrawer>
-    <MudMainContent Class="mt-16 pa-4">
+        <MudSpacer/>
+        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://github.com/OE-NIK-projects/DevEnv-WebService" Target="_blank" />
+        <MudIconButton Icon="@(DarkLightModeButtonIcon)" Color="Color.Inherit" OnClick="@DarkModeToggle"/>
+    </MudAppBar>
+
+    <MudMainContent Class="flex-grow-1 mt-16 pa-4">
         @Body
     </MudMainContent>
+
+    <MudPaper Class="d-flex mt-auto justify-center bg-dark text-white pa-3 w-100">
+        <MudText Typo="Typo.body1">
+            © 2025 Boilerplate Kft. Minden jog fenntartva.
+        </MudText>
+    </MudPaper>
 </MudLayout>
 
 
@@ -28,7 +32,6 @@
 </div>
 
 @code {
-    private bool _drawerOpen = true;
     private bool _isDarkMode = true;
     private MudTheme? _theme = null;
 
@@ -42,12 +45,6 @@
             PaletteDark = _darkPalette,
             LayoutProperties = new LayoutProperties()
         };
-    }
-
-
-    private void DrawerToggle()
-    {
-        _drawerOpen = !_drawerOpen;
     }
 
     private void DarkModeToggle()
@@ -96,7 +93,7 @@
 
     public string DarkLightModeButtonIcon => _isDarkMode switch
     {
-        true => Icons.Material.Rounded.AutoMode,
+        true => Icons.Material.Rounded.LightMode,
         false => Icons.Material.Outlined.DarkMode,
     };
 }
