@@ -50,8 +50,6 @@ Ha minden rendben van, a parancs futtatása során nem kér jelszót.
 
 ---
 
-Below is a detailed Markdown documentation in Hungarian that explains the purpose and functionality of each component in the provided PowerShell script (`Deploy-Gitlab.ps1`). The script is designed to automate the deployment of a GitLab instance on a remote server using Docker, and the documentation will break down each section and function.
-
 ## Automatikus Konfiguráció
 
 A `Deploy-Gitlab.ps1` szkript célja egy GitLab példány automatizált telepítése egy távoli szerverre Docker használatával.
@@ -80,21 +78,38 @@ A szkript a következő lépéseket hajtja végre sorrendben:
 
 1. **Előfeltételek**:
 
+   - A DevEnv-WebService repó klónozva/letöltve.
    - PowerShell környezet (Windows, Linux vagy macOS).
    - SSH és SCP eszközök telepítve.
    - Docker és Docker Compose telepítve a távoli szerveren.
    - A `docker-compose.yml` fájl létezik a szkript könyvtárában.
    - [Jelszó nélküli sudo parancsok lehetséges futtatása](#jelszó-nélküli-sudo-konfiguráció)
 
-2. **Futtatás**:
+2. **Klónozás**
+   Amennyiben telepítve van a `Git` verziókezelő, klónozzuk le annak a segítségével.
 
-   ```powershell
-   .\Deploy-Gitlab.ps1
+   ```cmd
+   git clone https://github.com/OE-NIK-projects/DevEnv-WebService
+   ```
+
+   Vagy töltsük le manuálisan `.zip` formátumban innen: [DevEnv-WebService](https://github.com/OE-NIK-projects/DevEnv-WebService)
+
+   Csomagoljuk ki és lépjünk bele a `DevEnv-WebService` mappába.
+
+   ```poweshell
+   cd .\DevEnv-WebService\
+   ```
+
+3. **Futtatás**:
+  Futtassuk a `Deploy-Gitlab.ps1` powershell szkriptet.
+
+   ```poweshell
+   .\config\server\Deploy-Gitlab.ps1
    ```
 
    - A szkript interaktív: kéri a felhasználótól a távoli hozzáférési adatokat, SSH hitelesítési döntést és az adminisztrátori jelszót.
 
-3. **Kimenet**:
+4. **Kimenet**:
    - A szkript lépésről lépésre kiírja az állapotokat (pl. "SSH key uploaded", "GitLab started").
    - Végül megjeleníti a különböző szolgáltatások hozzáférési adatait.
 
