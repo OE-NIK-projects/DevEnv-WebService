@@ -1,2 +1,5 @@
 .env
-temp
+temp/
+.idea/
+bin/
+obj/
