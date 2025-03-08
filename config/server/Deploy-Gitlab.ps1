@@ -212,6 +212,9 @@ function Set-GitlabEnvironment {
     if (-not (Test-CommandSuccess -SuccessMessage ".env file uploaded" -FailureMessage "Failed to upload .env file: ")) {
         throw "Failed to upload .env file"
     }
+    else {
+        Remove-Item $Paths.DotEnvFile
+    }
 
     # Upload docker-compose.yml file
     Invoke-SCP -Source $Paths.DockerComposeFile -Destination $Config.DockerDir
