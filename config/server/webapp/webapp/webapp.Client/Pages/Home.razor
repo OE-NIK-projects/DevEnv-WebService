@@ -1,7 +1,20 @@
 ﻿@page "/"
 
-<h2>Home</h2>
+<MudContainer>
+    <MudText Typo="Typo.h3" Class="mb-5">Üdvözöljük a Boilerplate Kft. honlapján!</MudText>
+
+    <MudText Typo="Typo.h6" Class="mb-5">
+        Mi egy innovatív fejlesztőcég vagyunk, amely modern
+        webalkalmazásokat készít ügyfeleink számára. Projektjeinket
+        hatékonyan kezeljük, és a legújabb technológiákat alkalmazzuk.
+    </MudText>
+
+    <MudButton Href="/services" Variant="Variant.Filled" Color="Color.Default"
+               EndIcon="@Icons.Material.Filled.ArrowForward">
+        <MudText>Szolgáltatásaink</MudText>
+    </MudButton>
+</MudContainer>
 
 @code {
-    
+
 }

@@ -1,7 +1,43 @@
 ﻿@page "/contact"
 
-<h2>Contact</h2>
+<MudContainer>
+    <MudText Typo="Typo.h3" Class="mb-5">Kapcsolat</MudText>
+
+    <div class="d-flex gap-3">
+        <MudPaper Class="p-4" Style="width: 50%;">
+            <MudList T="string">
+                <MudListItem>
+                    <MudText><strong>Email:</strong>
+                        <MudLink Href="mailto:info@boilerplatekft.hu" Target="_blank" Underline="Underline.None">
+                            info@boilerplatekft.hu
+                        </MudLink>
+                    </MudText>
+                </MudListItem>
+                <MudListItem>
+                    <MudText><strong>Telefon:</strong>
+                        <MudLink Href="tel:+36123456789" Underline="Underline.None">
+                            +36 123 456 789
+                        </MudLink>
+                    </MudText>
+                </MudListItem>
+                <MudListItem>
+                    <MudText><strong>Cím:</strong>
+                        <MudLink Href="https://maps.app.goo.gl/2KcMTQ56R59ezbeR6" Underline="Underline.None" Target="_blank">
+                            1234 Budapest, Fejlesztő utca 1.
+                        </MudLink>
+                    </MudText>
+                </MudListItem>
+            </MudList>
+        </MudPaper>
+
+        <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d172572.9674078439!2d18.965501236953983!3d47.48109538781723!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4741c334d1d4cfc9%3A0x400c4290c1e1160!2z0JHRg9C00LDQv9C10YjRgg!5e0!3m2!1sru!2shu!4v1741448158186!5m2!1sru!2shu"
+            allowfullscreen="" loading="lazy"
+            class="mud-elevation-1 rounded" style="width: 50%;"
+            referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+</MudContainer>
 
 @code {
-    
+
 }

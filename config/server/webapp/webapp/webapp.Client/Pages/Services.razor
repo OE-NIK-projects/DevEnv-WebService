@@ -1,7 +1,58 @@
 ﻿@page "/services"
 
-<h2>Services</h2>
+<MudContainer>
+    <MudText Typo="Typo.h3" Class="mb-5">Szolgáltatásaink</MudText>
+    <MudText Typo="Typo.h6" Class="mb-4">
+        Az alábbiakban bemutatjuk, milyen szolgáltatásokat nyújtunk ügyfeleink számára.
+    </MudText>
+
+    <MudGrid Spacing="3">
+        <MudItem xs="12" md="4">
+            <MudCard Class="h-100">
+                <MudCardContent>
+                    <MudText Typo="Typo.h5">Webalkalmazás fejlesztés</MudText>
+                    <MudText>
+                        Modern és reszponzív webalkalmazásokat készítünk, amelyek megfelelnek az ügyfelek igényeinek.
+                    </MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" md="4">
+            <MudCard Class="h-100">
+                <MudCardContent>
+                    <MudText Typo="Typo.h5">Szerverüzemeltetés</MudText>
+                    <MudText>
+                        Linux alapú szervereket üzemeltetünk, biztosítva a stabilitást és a költséghatékonyságot.
+                    </MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" md="4">
+            <MudCard Class="h-100">
+                <MudCardContent>
+                    <MudText Typo="Typo.h5">Projektmenedzsment</MudText>
+                    <MudText>
+                        Hatékonyan kezeljük projektjeit, hogy azok időben és költségkereten belül megvalósuljanak.
+                    </MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+
+        <MudItem xs="12" md="4">
+            <MudCard Class="h-100">
+                <MudCardContent>
+                    <MudText Typo="Typo.h5">Felhő alapú megoldások</MudText>
+                    <MudText>
+                        Felhő alapú rendszereket kínálunk a forráskódok és alkalmazások tárolására.
+                    </MudText>
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
 
 @code {
-    
+
 }
