@@ -6,7 +6,7 @@ if (!(Get-Command 'openssl' -ErrorAction SilentlyContinue)) {
 }
 
 $originalPath = Get-Location
-$certsDir = "$PSScriptRoot/../certs"
+$certsDir = "$PSScriptRoot/../../certs"
 
 $caKey = 'rca.key'
 $caCer = 'rca.crt'
@@ -31,7 +31,7 @@ try {
 		-new `
 		-out $caCer `
 		-subj $subject `
-		-x509 
+		-x509
 
 	Write-Host 'Done!'
 }

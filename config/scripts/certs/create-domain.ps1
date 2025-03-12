@@ -6,7 +6,7 @@ if (!(Get-Command 'openssl' -ErrorAction SilentlyContinue)) {
 }
 
 $originalPath = Get-Location
-$certsDir = "$PSScriptRoot/../certs"
+$certsDir = "$PSScriptRoot/../../certs"
 $tempFile = 'ext.tmp'
 
 $caKey = 'rca.key'
@@ -26,7 +26,7 @@ try {
 	Set-Location $certsDir
 
 	if (!(Test-Path $caKey) -or !(Test-Path $caCer)) {
-		& "$PSScriptRoot/gen-rca.ps1"
+		& "$PSScriptRoot/create-rca.ps1"
 	}
 
 	Write-Host 'Writing temp file'
