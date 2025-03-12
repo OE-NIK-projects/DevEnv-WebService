@@ -1,0 +1,42 @@
+#!/usr/bin/env pwsh
+
+[CmdletBinding()]
+param (
+	[Parameter(Mandatory = $true, Position = 0)]
+	[string]
+	$User,
+
+	[Parameter(Mandatory = $true, Position = 1)]
+	[string]
+	$Address,
+
+	[Parameter(Mandatory = $true, Position = 2)]
+	[UInt16]
+	$Port
+)
+
+function Exit-WithError {
+	param($Message)
+	Write-Host 'Error:' $Message -ForegroundColor Red
+	exit 1
+}
+
+if (!(Get-Command 'sftp' -ErrorAction SilentlyContinue)) {
+	Exit-WithError 'sftp is not installed!'
+}
+
+
+$cmds = @"
+put $(Resolve-Path "$PSScriptRoot/../../router")/*.rsc
+bye
+"@
+
+Write-Host "Connecting to $address`:$port"
+$cmds | sftp -b- -P $Port "$User@$Address"
+
+if (0 -eq $LastExitCode) {
+	Write-Host 'Successfully upload RouterOS scripts'
+}
+else {
+	Exit-WithError 'failed to upload RouterOS scripts!'
+}
