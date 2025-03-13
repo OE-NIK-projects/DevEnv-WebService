@@ -6,9 +6,10 @@ remove [find]
 
 # Add WAN rules
 add action=accept chain=input comment="Allow established/related" connection-state=established,related
+add action=accept chain=input comment="Allow pinging" in-interface=ether1 protocol=icmp
 add action=accept chain=input comment="Allow server SSH" dst-port=22 in-interface=ether1 protocol=tcp
 add action=accept chain=input comment="Allow server HTTPS" dst-port=443 in-interface=ether1 protocol=tcp
-add action=accept chain=input comment="Allow pinging" in-interface=ether1 protocol=icmp
+add action=accept chain=input comment="Allow WireGuard" dst-port=7172 in-interface=ether1 protocol=udp
 add action=drop chain=input comment="Block outside" in-interface=ether1
 
 # Only allow SSH and WebFig access from the Wireguard tunnel

@@ -27,7 +27,8 @@ if (!(Get-Command 'ssh' -ErrorAction SilentlyContinue)) {
 
 $cmds = "/system/backup/save name=before-setup"
 foreach ($script in Get-ChildItem "$PSScriptRoot/../../router/*.rsc" -File) {
-	$cmds += "; /import $($script.Name)"
+	$name = $script.Name
+	$cmds += "; :put `"Loading $name`"; /import $name"
 }
 
 Write-Host "Connecting to $Address`:$Port"
