@@ -80,6 +80,7 @@ A szkript a következő lépéseket hajtja végre sorrendben:
 
    - A DevEnv-WebService repó klónozva/letöltve.
    - PowerShell környezet (Windows, Linux vagy macOS).
+   - PowerShell ^7.5.0
    - SSH és SCP eszközök telepítve.
    - Docker és Docker Compose telepítve a távoli szerveren.
    - A `docker-compose.yml` fájl létezik a szkript könyvtárában.
@@ -94,17 +95,17 @@ A szkript a következő lépéseket hajtja végre sorrendben:
 
    Vagy töltsük le manuálisan `.zip` formátumban innen: [DevEnv-WebService](https://github.com/OE-NIK-projects/DevEnv-WebService)
 
-   Csomagoljuk ki és lépjünk bele a `DevEnv-WebService` mappába.
+   Csomagoljuk ki és lépjünk bele a `DevEnv-WebService/config/scripts/server` mappába.
 
    ```poweshell
-   cd .\DevEnv-WebService\
+   cd .\DevEnv-WebService\config\scripts\server
    ```
 
 3. **Futtatás**:
   Futtassuk a `Deploy-Gitlab.ps1` powershell szkriptet.
 
    ```poweshell
-   .\config\server\Deploy-Gitlab.ps1
+   .\Deploy-Gitlab.ps1
    ```
 
    - A szkript interaktív: kéri a felhasználótól a távoli hozzáférési adatokat, SSH hitelesítési döntést és az adminisztrátori jelszót.
