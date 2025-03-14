@@ -78,10 +78,9 @@ A szkript a következő lépéseket hajtja végre sorrendben:
 
 1. **Előfeltételek**:
 
-   - A DevEnv-WebService repó klónozva/letöltve.
-   - PowerShell környezet (Windows, Linux vagy macOS).
-   - PowerShell ^7.5.0
+   - PowerShell 7+
    - SSH és SCP eszközök telepítve.
+   - A DevEnv-WebService repó klónozva/letöltve.
    - Docker és Docker Compose telepítve a távoli szerveren.
    - A `docker-compose.yml` fájl létezik a szkript könyvtárában.
    - [Jelszó nélküli sudo parancsok lehetséges futtatása](#jelszó-nélküli-sudo-konfiguráció)
