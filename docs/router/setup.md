@@ -34,10 +34,10 @@
 
 > Hivatalos segédlet: https://help.mikrotik.com/docs/spaces/ROS/pages/18350234/Cloud+Hosted+Router+CHR
 
-1. Töltsük le a legfrissebb 7.18-as Cloud Hosted Router **vmdk** lemezképet a [MikroTik weboldaláról](https://mikrotik.com/download) majd tömörítsük ki a zip archívumból a `.vmdk` fájlt egy tetszőleges helyre!
-![01](img/2/01.png)
+1. Töltsük le a legfrissebb 7.18-as Cloud Hosted Router **vmdk** lemezképet a [MikroTik weboldaláról](https://mikrotik.com/download) majd tömörítsük ki a zip archívumból a `.vmdk` fájlt egy tetszőleges helyre!<br><br>
+![01](img/2/01.png)<br><br>
 
-2. Hozzunk létre egy új virtuális gépet a VMWare-be! Ezt megtehetjük a `File`>`New Virtual Machine...` menüponttal.
+2. Hozzunk létre egy új virtuális gépet a VMWare-be! Ezt megtehetjük a `File`>`New Virtual Machine...` menüponttal.<br><br>
 
 3. Válasszük ki a `Custom` konfigurációt!
 ![03](img/2/03.png)
@@ -81,8 +81,10 @@
 16. Adjunk a virtuális géphez két hálózati interfészt. Az első a `vmnet8`-at, a második a `vmnet1`-et használja!
 ![16](img/2/16.png)
 
+17. Zárjuk be ezt az ablakot és fejezzük be a virtuális gép létrehozását!
 
-17. Zárjuk be ezt az ablakot és fejezzük be a virtuális gép letrehozását!
+18. Indítsuk el a virtuális gépet!<br><br>
+![18](img/2/18.png)<br><br>
 
 
 ## 3. Szükséges változókat beállítása a [values.ps1](../../config/scripts/router/values.ps1) fájlban
