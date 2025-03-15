@@ -39,16 +39,16 @@
 
 2. Hozzunk létre egy új virtuális gépet a VMWare-be! Ezt megtehetjük a `File`>`New Virtual Machine...` menüponttal.<br><br>
 
-3. Válasszük ki a `Custom` konfigurációt!
+3. Válasszuk ki a `Custom` konfigurációt!
 ![03](img/2/03.png)
 
-4. Itt hagyhatunk mindent úgy ahogy van.
+4. Az alapértelemezett beállítások megfelelnek, továbbléphetünk.
 ![04](img/2/04.png)
 
-5. Válasszük ki azt, hogy majd később telepítünk operációs rendszert!
+5. Válasszuk ki azt, hogy majd később telepítünk operációs rendszert!
 ![05](img/2/05.png)
 
-6. Válasszük ki az `Other`/`Other 64-bit` verziót!
+6. Válasszuk ki az `Other`/`Other 64-bit` verziót!
 ![06](img/2/06.png)
 
 7. Állítsunk be egy nevet az új virtuális gépnek!
@@ -69,7 +69,7 @@
 12. Válasszuk az ajánlott opciót!
 ![12](img/2/12.png)
 
-13. Válasszük ki, hogy egy már létező lemezt szeretnénk használni!
+13. Válasszuk ki, hogy egy már létező lemezt szeretnénk használni!
 ![13](img/2/13.png)
 
 14. Válasszuk ki a kitömörített `.vmdk` fájlt!
