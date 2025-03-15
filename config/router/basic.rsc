@@ -40,10 +40,6 @@ set allow-remote-requests=yes servers=8.8.8.8
 	add action=masquerade chain=srcnat comment="LAN" in-interface=ether2 out-interface=ether1
 }
 
-# Set SSH port
-/ip/service
-set ssh port=2222
-
 # Disable unnecessary services
 /ip/service
 set telnet disabled=yes
