@@ -36,10 +36,19 @@ A hálózat egy MikroTik router köré épül, amely az internetkapcsolatot, a b
 - **Topológia**:
 
   ```ansi
-  [Internet] --- [MikroTik Router] --- [Ubuntu Szerver] --- [Windows Kliens]
-                  | 10.0.0.128 (ether1)   | 192.168.11.11      | 192.168.11.200
-                  | 192.168.11.1 (ether2) |                  --- [Linux Kliens]
-                  | 172.16.0.1 (wg)                            | 192.168.11.201
+  [Internet]
+    │
+    │
+  [MikroTik Router]
+    ├── ether1: 10.0.0.128
+    ├── ether2: 192.168.11.1
+    ├── WireGuard (wg): 172.16.0.1
+    │
+    │
+  [Ubuntu Szerver] — 192.168.11.11
+    │
+    ├── [Windows Kliens] — 192.168.11.200
+    ├── [Linux Kliens]   — 192.168.11.201
   ```
 
 - **Interfészek**:
@@ -77,21 +86,21 @@ A szerver egy Ubuntu 24.04 LTS alapú rendszer, amely Docker konténerekkel bizt
     nginx:
       image: nginx:latest
       ports:
-        - '80:80'
-        - '443:443'
+        - "80:80"
+        - "443:443"
       volumes:
-        - './nginx.conf:/etc/nginx/nginx.conf'
+        - "./nginx.conf:/etc/nginx/nginx.conf"
     gitlab:
       image: gitlab/gitlab-ce:latest
       hostname: gitlab.boilerplate.hu
       volumes:
-        - 'gitlab/config:/etc/gitlab'
-        - 'gitlab/logs:/var/log/gitlab'
-        - 'gitlab/data:/var/gitlab'
+        - "gitlab/config:/etc/gitlab"
+        - "gitlab/logs:/var/log/gitlab"
+        - "gitlab/data:/var/gitlab"
     webservice:
       image: boilerplate/webservice:latest
       volumes:
-        - 'webservice-data:/app/data'
+        - "webservice-data:/app/data"
   volumes:
     gitlab-config:
     gitlab-data:
