@@ -2,9 +2,7 @@
 
 ## 1. Projekt összefoglaló
 
-A Boilerplate Kft. egy kis költségvetésű, webalkalmazás-fejlesztéssel, szerverüzemeltetéssel, projektmenedzsmenttel és felhő alapú megoldásokkal foglalkozó vállalkozás. A cél egy költséghatékony, Docker alapú infrastruktúra kialakítása, amely egyetlen Ubuntu 24.04 LTS szerveren fut, valamint a hálózati funkcionalitásért egy MikroTik router felel.
-
-A projekt figyelembe veszi a cég Docker iránti elkötelezettségét, a GitLab verziókezelő rendszer használatát, valamint a meglévő erőforrások lehető leghatékonyabb kihasználását.
+A Boilerplate Kft. egy kis költségvetésű, webalkalmazás-fejlesztéssel, szerverüzemeltetéssel és projektmenedzsmenttel foglalkozó vállalkozás. A cél egy költséghatékony, Docker-alapú infrastruktúra kialakítása, amely egyetlen Ubuntu 24.04 LTS szerveren fut, egy MikroTik routerrel biztosítja a hálózati funkcionalitást, valamint támogatja a belső hálózaton működő Windows és Linux klienseket, amelyeken a fejlesztéshez szükséges alkalmazások telepítve vannak.
 
 ---
 
@@ -12,168 +10,164 @@ A projekt figyelembe veszi a cég Docker iránti elkötelezettségét, a GitLab 
 
 ### 2.1. Általános követelmények
 
-- **Költséghatékonyság**: A megoldás minimális hardver- és szoftverlicenc-költségekkel működjön.
-- **Egyszerűség**: Az infrastruktúra könnyen kezelhető legyen egy kis csapattal.
-- **Skálázhatóság**: A rendszer támogassa a jövőbeli bővítéseket (pl. további szolgáltatások Docker konténerekben).
-- **Biztonság**: Alapvető védelmi mechanizmusok (tűzfal, VPN) biztosítsák a hálózati és szerverszintű hozzáférést.
+- **Költséghatékonyság**: Minimális hardver- és szoftverlicenc-költségek.
+- **Egyszerűség**: Könnyen kezelhető infrastruktúra kis csapattal.
+- **Skálázhatóság**: Támogassa a jövőbeli bővítéseket.
+- **Biztonság**: Alapvető védelmi mechanizmusok (tűzfal, VPN).
 
 ### 2.2. Funkcionális követelmények
 
 - **Hálózati funkcionalitás**:
-  - DHCP és DNS szolgáltatás a MikroTik routeren keresztül.
+  - DHCP és DNS a MikroTik routeren keresztül.
   - WireGuard VPN távoli hozzáféréshez.
-  - SSH-hozzáférés a szerverhez és routerhez korlátozott hálózatokból.
+  - SSH-hozzáférés korlátozott hálózatokból.
 - **Szerver funkcionalitás**:
-  - Egy Ubuntu 24.04 LTS szerveren futó Docker konténerek biztosítják a szolgáltatásokat.
-  - GitLab verziókezelő rendszer Docker konténerben.
-  - Nginx webszerver Docker konténerben az URL-ek kiszolgálására (`boilerplate.hu`, `gitlab.boilerplate.hu`).
-  - Webszolgáltatások Docker konténerekben.
+  - Ubuntu 24.04 LTS szerver Docker konténerekkel (GitLab, Nginx, webszolgáltatások).
+- **Kliens funkcionalitás**:
+  - Windows és Linux kliensek a belső hálózaton (192.168.11.0/24).
+  - Fejlesztési környezet: Git, Docker Desktop (Windows/Linux), IDE-k (pl. VS Code), böngészők.
 - **Domain kezelés**:
-  - Statikus DNS rekordok a MikroTik routeren: `boilerplate.hu`, `gitlab.boilerplate.hu`, `www.boilerplate.hu`.
+  - Statikus DNS rekordok: `boilerplate.hu`, `gitlab.boilerplate.hu`, `www.boilerplate.hu`.
 
-### 2.3. Nem funkcionális követelmények
+### 2.3. Hálózat terv
 
-- **Teljesítmény**: A rendszer támogassa egy kis fejlesztőcsapat (5-10 fő) egyidejű munkáját.
-- **Üzemidő**: Minimális állásidő (99% rendelkezésre állás) a szolgáltatások számára.
-- **Karbantarthatóság**: A konfigurációk dokumentáltak és szkriptekkel automatizálhatók legyenek.
+A hálózat egy MikroTik router köré épül, amely az internetkapcsolatot, a belső hálózatot és a VPN-t kezeli.
 
----
+- **Topológia**:
 
-## 3. Követelmények részletezése
+  ```ansi
+  [Internet] --- [MikroTik Router] --- [Ubuntu Szerver] --- [Windows Kliens]
+                  | 10.0.0.128 (ether1)   | 192.168.11.11      | 192.168.11.200
+                  | 192.168.11.1 (ether2) |                  --- [Linux Kliens]
+                  | 172.16.0.1 (wg)                            | 192.168.11.201
+  ```
 
-### 3.1. Specifikáció
+- **Interfészek**:
+  - `ether1`: ISP kapcsolat (DHCP kliens).
+  - `ether2`: Belső hálózat (192.168.11.0/24).
+  - `wg`: VPN alhálózat (172.16.0.0/24).
+- **DHCP kiosztás**:
+  - Szerver: 192.168.11.11 (fix).
+  - Windows kliens: 192.168.11.200 (dinamikus vagy fix).
+  - Linux kliens: 192.168.11.201 (dinamikus vagy fix).
+- **DNS**:
+  - Külső: 8.8.8.8.
+  - Statikus rekordok a MikroTik-ban a domainekhez.
 
-#### 3.1.1. Hálózati specifikáció
+### 2.4. Szerver terv
 
-- **Router**: MikroTik RouterOS 7.18
-  - Interfészek:
-    - `ether1`: 10.0.0.128/24 (DHCP kliens az ISP felől).
-    - `ether2`: 192.168.11.1/24 (belső hálózat átjárója).
-    - `wg`: 172.16.0.1/24 (WireGuard VPN hálózat).
-  - Szolgáltatások:
-    - DHCP szerver: 192.168.11.200-249 tartomány, 192.168.11.11 fixen a szervernek.
-    - DNS szerver: 8.8.8.8 továbbítás, statikus rekordok a domainekhez.
-    - NAT: Masquerade az `ether2` és `wg` interfészekhez.
-    - Tűzfal: 443-as port továbbítás a szerverre (192.168.11.11).
-  - Távoli elérés:
-    - WireGuard VPN: 7172-es port.
-    - SSH: 22-es port, csak 172.16.0.0/24-ből.
-    - WebFig: 80-as port, csak 172.16.0.0/24-ből.
+A szerver egy Ubuntu 24.04 LTS alapú rendszer, amely Docker konténerekkel biztosítja a szolgáltatásokat.
 
-#### 3.1.2. Szerver specifikáció
-
-- **Operációs rendszer**: Ubuntu 24.04 LTS
-  - Telepített komponensek: OpenSSH, Docker, Docker Compose.
-  - Statikus IP: 192.168.11.11.
-- **Docker konténerek**:
+- **Hardver**: Minimális követelmény: 4 GB RAM, 2 CPU mag, 50 GB SSD.
+- **Szoftver**:
+  - OS: Ubuntu 24.04 LTS.
+  - Telepített csomagok: OpenSSH, Docker, Docker Compose.
+- **Konténerek**:
   - **GitLab**: Verziókezelés és CI/CD.
-  - **Nginx**: Webkiszolgáló, reverse proxy a domainekhez.
-  - **Webszolgáltatások**: Boilerplate Kft. saját alkalmazásai.
-- **Hálózati konfiguráció**: A konténerek a szerver IP-címén (192.168.11.11) érhetők el, az Nginx kezeli a forgalmat.
+  - **Nginx**: Reverse proxy a domainekhez.
+  - **Webszolgáltatások**: Boilerplate alkalmazások.
+- **Hálózat**: Statikus IP (192.168.11.11), 80/443 portokon keresztül kommunikál.
 
-### 3.2. Használati esetek
+### 2.5. Szerver terv (részletezés)
 
-#### 3.2.1. UC-01: Fejlesztő távoli hozzáférése a GitLab-hoz
+- **Docker Compose struktúra**:
 
-- **Szereplő**: Fejlesztő.
-- **Előfeltétel**: WireGuard VPN kliens konfigurálva a fejlesztő eszközén.
-- **Folyamat**:
-  1. A fejlesztő csatlakozik a VPN-hez (172.16.0.0/24).
-  2. Böngészőben megnyitja a `gitlab.boilerplate.hu` címet.
-  3. Bejelentkezik, és eléri a projekt repókat.
-- **Eredmény**: A fejlesztő hozzáfér a GitLab funkciókhoz.
+  ```yaml
+  services:
+    nginx:
+      image: nginx:latest
+      ports:
+        - '80:80'
+        - '443:443'
+      volumes:
+        - './nginx.conf:/etc/nginx/nginx.conf'
+    gitlab:
+      image: gitlab/gitlab-ce:latest
+      hostname: gitlab.boilerplate.hu
+      volumes:
+        - 'gitlab/config:/etc/gitlab'
+        - 'gitlab/logs:/var/log/gitlab'
+        - 'gitlab/data:/var/gitlab'
+    webservice:
+      image: boilerplate/webservice:latest
+      volumes:
+        - 'webservice-data:/app/data'
+  volumes:
+    gitlab-config:
+    gitlab-data:
+    webservice-data:
+  ```
 
-#### 3.2.2. UC-02: Webszolgáltatás elérése az internetről
+- **Tárolás**: Docker volume-ok a perzisztens adatokhoz.
+- **Hozzáférés**: SSH kulcs alapú hitelesítés, VPN-en keresztül.
 
-- **Szereplő**: Külső felhasználó.
-- **Előfeltétel**: Internetkapcsolat.
-- **Folyamat**:
-  1. A felhasználó böngészőben megnyitja a `boilerplate.hu` címet.
-  2. A MikroTik NAT továbbítja a 443-as port forgalmát a szerverre.
-  3. Az Nginx kiszolgálja a kérést.
-- **Eredmény**: A felhasználó eléri a Boilerplate Kft. webalkalmazását.
+### 2.6. Kliens terv
 
-#### 3.2.3. UC-03: Szerveradminisztráció SSH-n keresztül
+A belső hálózaton két kliens található: egy Windows és egy Linux alapú fejlesztői munkaállomás.
 
-- **Szereplő**: Rendszergazda.
-- **Előfeltétel**: VPN kapcsolat.
-- **Folyamat**:
-  1. A rendszergazda SSH-val csatlakozik a 192.168.11.11 címre.
-  2. Docker konténereket kezel (pl. `docker ps`, `docker-compose`).
-- **Eredmény**: A szerver konfigurációja módosítható.
+- **Windows kliens**:
 
----
+  - **OS**: Windows 10/11.
+  - **IP**: 192.168.11.200 (DHCP vagy fix).
+  - **Telepített szoftverek**:
+    - Git for Windows.
+    - Docker Desktop.
+    - Visual Studio Code (vagy más IDE).
+    - Böngésző (Chrome/Firefox).
+    - WireGuard kliens (VPN-hozzáféréshez).
+  - **Felhasználás**: Helyi fejlesztés, GitLab-hozzáférés, Docker konténerek tesztelése.
 
-## 4. Tervezés
+- **Linux kliens**:
 
-### 4.1. Hálózati architektúra
+  - **OS**: Ubuntu 22.04/24.04 vagy más disztribúció.
+  - **IP**: 192.168.11.201 (DHCP vagy fix).
+  - **Telepített szoftverek**:
+    - Git.
+    - Docker és Docker Compose.
+    - Visual Studio Code (vagy más IDE).
+    - Böngésző (Chrome/Firefox).
+    - WireGuard kliens.
+  - **Felhasználás**: Helyi fejlesztés, GitLab-hozzáférés, konténerizált alkalmazások tesztelése.
 
-```
-[Internet] --- [MikroTik Router] --- [Ubuntu Szerver]
-                | 10.0.0.128 (ether1)   | 192.168.11.11
-                | 192.168.11.1 (ether2) |
-                | 172.16.0.1 (wg)       |
-```
+- **Hálózati integráció**:
+  - A kliensek a 192.168.11.0/24 hálózaton belül kommunikálnak a szerverrel.
+  - Hozzáférés a `gitlab.boilerplate.hu` és `boilerplate.hu` domainekhez a belső hálózaton keresztül.
 
-- A MikroTik router az internet és a belső hálózat között közvetít.
-- A szerver a 192.168.11.0/24 hálózaton belül működik.
-- A WireGuard VPN külön alhálózatot (172.16.0.0/24) biztosít a távoli hozzáféréshez.
+### 2.7. Tesztelési terv
 
-### 4.2. Szerver architektúra
+A rendszer működésének ellenőrzésére az alábbi teszteket kell elvégezni:
 
-```
-Ubuntu 24.04 LTS
-  ├── Docker
-  │    ├── GitLab (gitlab.boilerplate.hu)
-  │    ├── Nginx (boilerplate.hu, reverse proxy)
-  │    └── Webszolgáltatások (alkalmazások)
-  └── OpenSSH (távoli adminisztráció)
-```
+- **Hálózati tesztek**:
 
-- Az Nginx a bejövő forgalmat a megfelelő konténerhez irányítja.
-- A Docker Compose kezeli a konténerek konfigurációját és indítását.
+  - **T1**: DHCP kiosztás ellenőrzése (szerver és kliensek IP-címei).
+  - **T2**: DNS feloldás tesztelése (`ping boilerplate.hu`, `ping gitlab.boilerplate.hu`).
+  - **T3**: WireGuard VPN kapcsolat tesztelése külső hálózatról.
+  - **T4**: Porttovábbítás ellenőrzése (443-as port elérése az internetről).
 
-### 4.3. Docker Compose konfiguráció (példa)
+- **Szerver tesztek**:
 
-```yaml
-version: "3"
-services:
-  nginx:
-    image: nginx:latest
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-    depends_on:
-      - gitlab
-      - webservice
-  gitlab:
-    image: gitlab/gitlab-ce:latest
-    hostname: gitlab.boilerplate.hu
-    volumes:
-      - gitlab-config:/etc/gitlab
-      - gitlab-logs:/var/log/gitlab
-      - gitlab-data:/var/opt/gitlab
-  webservice:
-    image: boilerplate/webservice:latest
-    volumes:
-      - webservice-data:/app/data
-volumes:
-  gitlab-config:
-  gitlab-logs:
-  gitlab-data:
-  webservice-data:
-```
+  - **T5**: Docker konténerek indítása és elérhetősége (`docker ps`, `curl http://192.168.11.11`).
+  - **T6**: GitLab működésének ellenőrzése (bejelentkezés, repó létrehozása).
+  - **T7**: Nginx reverse proxy tesztelése (domainek elérése: `boilerplate.hu`, `gitlab.boilerplate.hu`).
+  - **T8**: SSH hozzáférés ellenőrzése VPN-en keresztül.
 
-### 4.4. Biztonsági tervezés
+- **Kliens tesztek**:
 
-- **Tűzfal**: A MikroTik csak a szükséges portokat (443, 7172) nyitja meg az internet felől.
-- **VPN**: WireGuard titkosított csatornát biztosít a távoli hozzáféréshez.
-- **Jogosultságok**: Jelszó nélküli sudo csak az `ubuntu` felhasználónak, SSH kulcs alapú hitelesítéssel.
+  - **T9**: GitLab elérése mindkét kliensről (böngésző és `git clone` parancs).
+  - **T10**: Docker konténer futtatása a klienseken (pl. `docker run hello-world`).
+  - **T11**: Helyi fejlesztési környezet tesztelése (kód írása, commit, push).
+
+- **Teljesítmény tesztek**:
+
+  - **T12**: Egyidejű hozzáférés tesztelése 5 felhasználóval (GitLab, webszolgáltatás).
+  - **T13**: Válaszidő mérése a webszolgáltatásoknál (pl. `curl -w "%{time_total}"`).
+
+- **Biztonsági tesztek**:
+  - **T14**: SSH hozzáférés korlátozásának ellenőrzése (VPN nélkül nem működik).
+  - **T15**: Tűzfal szabályok tesztelése (csak a 443 és 7172 portok érhetők el kívülről).
 
 ---
 
-## 5. Következtetés
+## 3. Következtetés
 
-A Boilerplate Kft. számára kialakított infrastruktúra költséghatékony, Docker alapú megoldást kínál, amely egy szerveren és routeren fut. A rendszer támogatja a cég alapvető működését és rugalmasan bővíthető a jövőben különböző szolgáltatásokkal (docker konténerekkel). A dokumentáció és az automatizált szkriptek biztosítják a karbantarthatóságot és az egyszerű üzemeltetést.
+A Boilerplate Kft. infrastruktúrája egy költséghatékony, Docker-alapú megoldást kínál, amely egyetlen szerveren és routeren fut, miközben támogatja a belső hálózaton működő Windows és Linux klienseket. A hálózati, szerver- és kliensoldali tervek biztosítják a fejlesztési igények kielégítését, a tesztelési terv pedig garantálja a rendszer megbízhatóságát és stabilitását.
