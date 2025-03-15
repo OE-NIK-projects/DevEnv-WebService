@@ -337,13 +337,13 @@ A Boilerplate Kft. projektjének megfelelően a virtuális gép hardverét a kö
 
     - A képernyőn a következő üzenet látható: **[FAILED] Failed unmounting cdrom.mount - /cdrom**.
 
-      ![Telepítési Közeg Leszerelése](./img/3/21.jpg)
+      ![21](./img/3/21.jpg)
 
     Távolítsuk el a virtuális gépen a telepítési ISO-t
 
     - VMware Workstation jobb alsó sarkában jobb klikk a `CD/DVD`-re, majd nyomjunk rá a `Disconnect` gombra.
 
-      ![Telepítési Közeg Leszerelése](./img/3/22.jpg)
+      ![22](./img/3/22.jpg)
 
     - Nyomjuk meg az **Enter** billentyűt a folytatáshoz.
 
@@ -355,7 +355,7 @@ A Boilerplate Kft. projektjének megfelelően a virtuális gép hardverét a kö
     - A képernyőn megjelenik az SSH host fingerprint és kulcsok listája (pl. `ECDSA`, `ED25519`, `RSA`).
     - Várjuk meg, amíg a rendszer teljesen elindul.
 
-      ![Rendszer Indítása és SSH Kulcsok Ellenőrzése](./img/3/23.jpg)
+      ![23](./img/3/23.jpg)
 
 22. **Belépés a szerverre SSH segítségével**
 
