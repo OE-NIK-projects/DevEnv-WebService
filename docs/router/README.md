@@ -1,9 +1,13 @@
 # MikroTik Router
 
+**[Telepítési útmutató →](setup.md)**
+
+---
+
 RouterOS verzió: 7.18
 
-Felhasználónév: `admin`\
-Jelszó: `admin`
+Alap felhasználónév: `admin`\
+Alap jelszó: `lalilulelo`
 
 
 ## Interfészek
@@ -23,7 +27,7 @@ Elérhető a 7172-es porton keresztül minden hálózatról.
 
 ### SSH
 
-Elérhető a 2222-es porton keresztül a 172.16.0.0/24-es hálózatból.
+Elérhető a 22-es porton keresztül a 172.16.0.0/24-es hálózatból.
 
 ### WebFig (webes kezelőfelület)
 
@@ -65,7 +69,6 @@ Szerver: 8.8.8.8
 
 | Forrás port | Cél cím | Cél port |
 |-|-|-|
-| 22 | 192.168.11.11 | 22 |
 | 443 | 192.168.11.11 | 443 |
 
 

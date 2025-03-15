@@ -1,6 +1,7 @@
 #!/usr/bin/env pwsh
 
 [CmdletBinding()]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', 'Password')]
 param (
 	[Parameter(Mandatory = $true, Position = 0)]
 	[string]
@@ -12,7 +13,11 @@ param (
 
 	[Parameter(Mandatory = $true, Position = 2)]
 	[string]
-	$User
+	$User,
+
+	[Parameter(Mandatory = $true, Position = 3)]
+	[string]
+	$Password
 )
 
 function Exit-WithError {
@@ -25,18 +30,12 @@ if (!(Get-Command 'ssh' -ErrorAction SilentlyContinue)) {
 	Exit-WithError 'ssh is not installed!'
 }
 
-$cmds = "/system/backup/save name=before-setup"
-foreach ($script in Get-ChildItem "$PSScriptRoot/../../router/*.rsc" -File) {
-	$name = $script.Name
-	$cmds += "; :put `"Loading $name`"; /import $name"
-}
-
 Write-Host "Connecting to $Address`:$Port"
-ssh -p $Port "$User@$Address" $cmds
+ssh -p $Port "$User@$Address" "/user/set $User password=`"$Password`""
 
 if (0 -eq $LastExitCode) {
-	Write-Host "Successfully run scripts"
+	Write-Host "Successfully set $User password"
 }
 else {
-	Exit-WithError 'failed to run scripts!'
+	Exit-WithError "failed to set $User password!"
 }

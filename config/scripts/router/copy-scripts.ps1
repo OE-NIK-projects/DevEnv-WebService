@@ -4,15 +4,15 @@
 param (
 	[Parameter(Mandatory = $true, Position = 0)]
 	[string]
-	$User,
-
-	[Parameter(Mandatory = $true, Position = 1)]
-	[string]
 	$Address,
 
-	[Parameter(Mandatory = $true, Position = 2)]
+	[Parameter(Mandatory = $true, Position = 1)]
 	[UInt16]
-	$Port
+	$Port,
+
+	[Parameter(Mandatory = $true, Position = 2)]
+	[string]
+	$User
 )
 
 function Exit-WithError {
