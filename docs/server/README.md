@@ -18,19 +18,27 @@ Ubuntu Server verzió: 24.04.2 LTS
 
 ## Szolgáltatások
 
-| Név    | Port | Engedélyezett hálózatok |
-| ------ | ---- | ----------------------- |
-| SSH    | 22   | 192.168.11.0/24         |
-| Docker | \*   | 192.168.11.0/24         |
+| Név        | Port |
+| ---------- | ---- |
+| SSH        | 22   |
+| Nginx      | 80   |
+| Gitlab SSH | 2424 |
+
+## Reverse Proxy (Nginx)
+
+| Szolgáltatás | Aldomain                |
+| ------------ | ----------------------- |
+| gitlab       | `gitlab.boilerplate.hu` |
+| webapp       | `boilerplate.hu`        |
+| webapp       | `www.boilerplate.hu`    |
 
 ## Docker konténerek
 
-| Név             | Port      |
-| --------------- | --------- |
-| Nginx           | 80        |
-| Webapp          | nginx     |
-| Gitlab          | 2424, 443 |
-| Some monitoring | nginx     |
+| Név    | Port |
+| ------ | ---- |
+| Nginx  | 80   |
+| Webapp | -    |
+| Gitlab | -    |
 
 ## Docker hálózatok
 
@@ -40,14 +48,13 @@ Ubuntu Server verzió: 24.04.2 LTS
 
 ## Docker kötetek
 
-| Konténer        | Elérési útvonal        | Elérési útvonal (Konténer) |
-| --------------- | ---------------------- | -------------------------- |
-| Nginx           | ~/docker/nginx         | /etc/nginx                 |
-| Webapp          | ~/docker/webapp        | ?                          |
-| Gitlab          | ~/docker/gitlab/config | /etc/gitlab                |
-|                 | ~/docker/gitlab/logs   | /var/log/gitlab            |
-|                 | ~/docker/gitlab/data   | /var/gitlab                |
-| Some monitoring | ?                      | ?                          |
+| Konténer | Elérési útvonal        | Elérési útvonal (Konténer) |
+| -------- | ---------------------- | -------------------------- |
+| Nginx    | ~/docker/nginx         | /etc/nginx                 |
+| Webapp   | ~/docker/webapp        | /app                       |
+| Gitlab   | ~/docker/gitlab/config | /etc/gitlab                |
+|          | ~/docker/gitlab/logs   | /var/log/gitlab            |
+|          | ~/docker/gitlab/data   | /var/gitlab                |
 
 ## Szkriptek
 
