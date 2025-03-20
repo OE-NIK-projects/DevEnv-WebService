@@ -53,8 +53,8 @@ Ubuntu Server verzió: 24.04.2 LTS
 | Nginx    | ~/docker/nginx         | /etc/nginx                 |
 | Webapp   | ~/docker/webapp        | /app                       |
 | Gitlab   | ~/docker/gitlab/config | /etc/gitlab                |
-|          | ~/docker/gitlab/logs   | /var/log/gitlab            |
-|          | ~/docker/gitlab/data   | /var/gitlab                |
+| Gitlab   | ~/docker/gitlab/logs   | /var/log/gitlab            |
+| Gitlab   | ~/docker/gitlab/data   | /var/gitlab                |
 
 ## Szkriptek
 
