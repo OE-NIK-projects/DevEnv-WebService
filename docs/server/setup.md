@@ -1,4 +1,4 @@
-# Ubuntu Server 24 LTS Telepítése
+# Ubuntu Server telepítése
 
 **[↩ Vissza](README.md)**
 
@@ -6,16 +6,15 @@
 
 0. [Előkövetelmények](#előkövetelmények)
 1. [VMWare virtuális hálózatok beállítása](#1-vmware-virtuális-hálózatok-beállítása)
-2. [Ubuntu Server 24 LTS VMWare-be](#2-ubuntu-server-24-lts-vmware-be)
-3. [Ubuntu Server 24 LTS hardverkonfigurációja](#3-virtuális-gép-hardverkonfigurációja)
-4. [Ubuntu Server 24 LTS telepítési folyamata](#4-ubuntu-server-24-lts-telepítési-folyamata-vmware-be)
+2. [Ubuntu Server VMWare-be](#2-ubuntu-server-24-lts-vmware-be)
+3. [Ubuntu Server hardverkonfigurációja](#3-virtuális-gép-hardverkonfigurációja)
+4. [Ubuntu Server telepítési folyamata](#4-ubuntu-server-24-lts-telepítési-folyamata-vmware-be)
 
 ## Előkövetelmények
 
-- **VMware Workstation Pro 17** telepítve a hoszt gépen.
-- **Ubuntu Server 24+ LTS ISO fájl**: Letölthető az [Ubuntu hivatalos weboldaláról](https://ubuntu.com/download/server).
-- **Hálózati előkészületek**: A VMware virtuális hálózatok (`vmnet1` és `vmnet8`) beállítva az [1. lépés](#1-vmware-virtuális-hálózatok-beállítása) szerint.
-- **Hoszt gép erőforrásai**: Legalább 4 GB RAM, 4 CPU mag, 50 GB szabad tárhely a virtuális gép számára.
+- VMware Workstation
+- [PowerShell 7+](https://github.com/PowerShell/PowerShell/)
+- [OpenSSH](https://www.openssh.com/)
 
 ## 1. VMWare virtuális hálózatok beállítása
 
@@ -337,13 +336,13 @@ A Boilerplate Kft. projektjének megfelelően a virtuális gép hardverét a kö
 
     - A képernyőn a következő üzenet látható: **[FAILED] Failed unmounting cdrom.mount - /cdrom**.
 
-      ![Telepítési Közeg Leszerelése](./img/3/21.jpg)
+      ![21](./img/3/21.jpg)
 
     Távolítsuk el a virtuális gépen a telepítési ISO-t
 
     - VMware Workstation jobb alsó sarkában jobb klikk a `CD/DVD`-re, majd nyomjunk rá a `Disconnect` gombra.
 
-      ![Telepítési Közeg Leszerelése](./img/3/22.jpg)
+      ![22](./img/3/22.jpg)
 
     - Nyomjuk meg az **Enter** billentyűt a folytatáshoz.
 
@@ -355,10 +354,10 @@ A Boilerplate Kft. projektjének megfelelően a virtuális gép hardverét a kö
     - A képernyőn megjelenik az SSH host fingerprint és kulcsok listája (pl. `ECDSA`, `ED25519`, `RSA`).
     - Várjuk meg, amíg a rendszer teljesen elindul.
 
-      ![Rendszer Indítása és SSH Kulcsok Ellenőrzése](./img/3/23.jpg)
+      ![23](./img/3/23.jpg)
 
 22. **Belépés a szerverre SSH segítségével**
 
-**[↑ Lap teteje](#ubuntu-server-24-lts-telepítése)**
+**[↑ Lap teteje](#ubuntu-server-telepítése)**
 
 **[↩ Vissza](README.md)**
