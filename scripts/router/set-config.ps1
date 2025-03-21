@@ -26,7 +26,7 @@ if (!(Get-Command 'ssh' -ErrorAction SilentlyContinue)) {
 }
 
 $cmds = "/system/backup/save name=before-setup"
-foreach ($script in Get-ChildItem "$PSScriptRoot/../../router/*.rsc" -File) {
+foreach ($script in Get-ChildItem "$PSScriptRoot/../config/router/*.rsc" -File) {
 	$name = $script.Name
 	$cmds += "; :put `"Loading $name`"; /import $name"
 }
