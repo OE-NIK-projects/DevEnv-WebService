@@ -10,6 +10,12 @@ class Test {
 	}
 }
 
+function Exit-WithError {
+	param($Message)
+	Write-Host 'Error:' $Message -ForegroundColor Red
+	exit 1
+}
+
 if (!$IsWindows -and !(Get-Command 'sudo' -ErrorAction SilentlyContinue)) {
 	Exit-WithError 'sudo is not installed!'
 }
@@ -62,6 +68,12 @@ $tests = (
 		}
 	),
 
+	[Test]::new("Router SSH public key authentication", {
+			ssh -o PasswordAuthentication=no "admin@$RouterTunnelAddress" '/quit'
+			return 0 -eq $LastExitCode
+		}
+	),
+
 	[Test]::new("wg-quick down ran successfully", {
 			if ($IsWindows) {
 				wg-quick down $tempWgConfigPath
@@ -74,7 +86,7 @@ $tests = (
 	)
 )
 
-$tempWgConfigPath = "$PSScriptRoot/temp-wg-peer1.conf"
+$tempWgConfigPath = "$PSScriptRoot/temp.peer1.conf"
 Copy-Item "$PSScriptRoot/../../config/wg-peers/peer1.conf" $tempWgConfigPath
 
 $pass = 0
