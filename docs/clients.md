@@ -55,6 +55,13 @@ A telepítés során az alapértelmezett beállításokat választottuk a Window
 
 Az Ubuntu kliens telepítése alapértelmezett beállításokkal történt, és az alábbi szoftverek kerültek telepítésre:
 
+## Felhasználó és Belépés
+
+- **Felhasználó neve**: LinuxClient
+- **Felhasználói kód**: Clientdemo
+
+A felhasználói fiók a rendszer alapértelmezett beállításai szerint lett konfigurálva, és a `Clientdemo` jelszóval történik a belépés.
+
 ## Alapértelmezett Telepítés
 
 A telepítés az Ubuntu legfrissebb stabil verzióján alapul. Az operációs rendszer az alapértelmezett beállításokkal lett telepítve, nincsenek különleges konfigurációk, és minden alapértelmezett nyelvi beállításon maradt.
