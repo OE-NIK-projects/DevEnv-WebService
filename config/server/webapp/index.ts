@@ -34,7 +34,7 @@ const server = Bun.serve({
 
         // Serve the file if it exists
         const file = Bun.file(filePath);
-        if (file.size > 0) { // Simple existence check
+        if (file.size > 0) {
             const contentType = getContentType(filePath);
             return new Response(file, { headers: { "Content-Type": contentType } });
         }
@@ -42,12 +42,11 @@ const server = Bun.serve({
     },
 });
 
-// Helper function to determine Content-Type
 function getContentType(filePath: string): string {
     if (filePath.endsWith(".html")) return "text/html";
     if (filePath.endsWith(".css")) return "text/css";
     if (filePath.endsWith(".js")) return "application/javascript";
-    return "application/octet-stream"; // Default fallback
+    return "application/octet-stream";
 }
 
 console.log(`Listening on http://localhost:${server.port} ...`);

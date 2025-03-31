@@ -1,4 +1,3 @@
-// Theme toggle (simulating MudBlazor's dark/light mode)
 function toggleTheme() {
     const body = document.body;
     if (body.classList.contains("dark-mode")) {
@@ -10,10 +9,23 @@ function toggleTheme() {
     }
 }
 
-// Navigation (for buttons with href)
-document.querySelectorAll(".mud-button[href]").forEach(button => {
+document.querySelectorAll(".nav-button, .mud-button[href]").forEach(button => {
     button.addEventListener("click", (e) => {
         e.preventDefault();
         window.location.href = button.getAttribute("href");
     });
 });
+
+function setActiveNav() {
+    const currentPath = window.location.pathname;
+    document.querySelectorAll(".nav-button").forEach(button => {
+        if (button.getAttribute("href") === currentPath) {
+            button.classList.add("active");
+        } else {
+            button.classList.remove("active");
+        }
+    });
+}
+
+window.addEventListener("load", setActiveNav);
+window.addEventListener("popstate", setActiveNav);
