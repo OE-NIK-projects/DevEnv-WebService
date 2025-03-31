@@ -1,0 +1,18 @@
+{
+	"services": [
+		{
+			"id": "web-development",
+			"name": "Webalkalmazás fejlesztés",
+			"description": "Modern és reszponzív webalkalmazásokat készítünk, amelyek megfelelnek az ügyfelek igényeinek.",
+			"pricePerHour": 12000,
+			"currency": "Ft"
+		},
+		{
+			"id": "project-management",
+			"name": "Projektmenedzsment",
+			"description": "Hatékonyan kezeljük projektjeit, hogy azok időben és költségkereten belül megvalósuljanak.",
+			"pricePerHour": 15000,
+			"currency": "Ft"
+		}
+	]
+}
