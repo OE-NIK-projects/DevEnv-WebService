@@ -53,8 +53,10 @@ async function getPrice() {
         const data = await response.json();
 
         if (response.ok) {
+            const formatter = new Intl.NumberFormat('hu-HU');
+            const formattedPrice = formatter.format(data.price);
             document.getElementById("price-result").textContent = 
-                `Ár: ${data.price} ${data.currency}`;
+                `Ár: ${formattedPrice} ${data.currency}`;
         } else {
             document.getElementById("price-result").textContent = 
                 "Hiba: " + (data.error || "Ismeretlen hiba");
