@@ -29,6 +29,24 @@ const server = Bun.serve({
 			case "/api/services":
 				filePath = "./public/db/services.json";
 				break;
+			case "/api/calculate": {
+				const serviceId = url.searchParams.get("service");
+				const hours = parseInt(url.searchParams.get("hours")) || 1;
+
+				const service = pricesData.services.find((s) => s.id === serviceId);
+				if (!service) {
+					return Response.json({ error: "Service not found" }, { status: 404 });
+				}
+
+				const price = service.pricePerHour * hours;
+				return Response.json(
+					{
+						price: price,
+						currency: service.currency,
+					},
+					{ status: 200 }
+				);
+			}
 			default:
 				if (url.pathname.startsWith("/api/")) {
 					return Response.json({ message: "Not found" }, { status: 404 });

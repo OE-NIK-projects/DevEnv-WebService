@@ -29,6 +29,15 @@
         <main class="mud-main-content">
             <div class="mud-container">
                 <h3 class="mud-text-h3">Áraink</h3>
+                <div class="price-calculator">
+                    <label for="service-select">Szolgáltatás:</label>
+                    <select id="service-select">
+                    </select>
+                    <label for="hours-input">Órák száma:</label>
+                    <input type="number" id="hours-input" min="1" value="1">
+                    <button class="mud-button" onclick="getPrice()">Számítás</button>
+                    <p id="price-result" class="mud-text"></p>
+                </div>
             </div>
         </main>
         <footer class="mud-footer">
@@ -36,5 +45,6 @@
         </footer>
     </div>
     <script src="/scripts/scripts.js"></script>
+    <script src="/scripts/calculator.js"></script>
 </body>
 </html>
