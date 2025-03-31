@@ -1,6 +1,8 @@
 const DEVMODE = process.env["DEVMODE"] !== "false";
 const PORT = process.env["PORT"] || "8080";
 
+const pricesData = await Bun.file("./public/db/services.json").json();
+
 const server = Bun.serve({
 	development: Boolean(DEVMODE),
 	port: Number(PORT),
@@ -24,8 +26,8 @@ const server = Bun.serve({
 				break;
 			case "/api/status":
 				return new Response("OK", { status: 200 });
-			case "/api/prices":
-				filePath = "./public/prices.json";
+			case "/api/services":
+				filePath = "./public/db/services.json";
 				break;
 			default:
 				if (url.pathname.startsWith("/api/")) {
@@ -48,6 +50,7 @@ function getContentType(filePath: string): string {
 	if (filePath.endsWith(".css")) return "text/css";
 	if (filePath.endsWith(".js")) return "application/javascript";
 	if (filePath.endsWith(".svg")) return "image/svg+xml";
+	if (filePath.endsWith(".json")) return "application/json";
 	return "application/octet-stream";
 }
 
