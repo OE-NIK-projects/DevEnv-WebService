@@ -72,4 +72,4 @@ function getContentType(filePath: string): string {
 	return "application/octet-stream";
 }
 
-console.log(`Listening on http://localhost:${server.port}\nListening on http://0.0.0.0:${server.port}`);
+console.log(`Listening on http://0.0.0.0:${server.port}`);
