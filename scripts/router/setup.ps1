@@ -14,7 +14,7 @@ param (
 
 	[Parameter(Position = 2)]
 	[UInt16]
-	$Port = 0,
+	$Port = 22,
 
 	[Parameter(Position = 3)]
 	[string]
@@ -116,25 +116,16 @@ if ([string]::IsNullOrWhiteSpace($Address)) {
 	}
 	else {
 		if (!$RouterExternalAddress) {
-			Write-Host 'Please set RouterExternalAddress in the values.ps1 file!'
+			Write-Host 'Please specify -Address or set $RouterExternalAddress in the values.ps1 file!'
 			exit 1
 		}
 		$Address = $RouterExternalAddress
 	}
 }
 
-if (!($Port -gt 0)) {
-	if ($RouterSSHPort -gt 0) {
-		$Port = $RouterSSHPort
-	}
-	else {
-		$Port = 22
-	}
-}
-
 if ([string]::IsNullOrWhiteSpace($Password)) {
 	if ([string]::IsNullOrWhiteSpace($RouterPassword)) {
-		Write-Host 'Please set RouterPassword in the values.ps1 file!'
+		Write-Host 'Please specify -Password or set $RouterPassword in the values.ps1 file!'
 		exit 1
 	}
 	$Password = $RouterPassword
