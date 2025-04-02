@@ -24,6 +24,10 @@ if (!(Get-Command 'wg-quick' -ErrorAction SilentlyContinue)) {
 	Exit-WithError 'wg-quick is not installed!'
 }
 
+if (!(Get-Command 'ssh' -ErrorAction SilentlyContinue)) {
+	Exit-WithError 'ssh is not installed!'
+}
+
 . "$PSScriptRoot/../router/values.ps1"
 
 $tests = (
