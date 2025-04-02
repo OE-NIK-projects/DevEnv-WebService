@@ -28,6 +28,10 @@ if (!(Get-Command 'ssh' -ErrorAction SilentlyContinue)) {
 	Exit-WithError 'ssh is not installed!'
 }
 
+if (!(Get-Command 'dhcping' -ErrorAction SilentlyContinue)) {
+	Exit-WithError 'dhcping is not installed!'
+}
+
 . "$PSScriptRoot/../router/values.ps1"
 
 $tests = (
@@ -84,6 +88,17 @@ $tests = (
 			}
 			else {
 				sudo -S wg-quick down $tempWgConfigPath
+			}
+			return 0 -eq $LastExitCode
+		}
+	),
+
+	[Test]::new("Router DHCP", {
+			if ($IsWindows) {
+				dhcping -s 192.168.11.1
+			}
+			else {
+				sudo -S dhcping -s 192.168.11.1
 			}
 			return 0 -eq $LastExitCode
 		}
