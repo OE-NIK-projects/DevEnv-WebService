@@ -27,7 +27,7 @@ if (!(Get-Command 'sftp' -ErrorAction SilentlyContinue)) {
 
 
 $cmds = @"
-put $(Resolve-Path "$PSScriptRoot/../../router")/*.rsc
+put $(Resolve-Path "$PSScriptRoot/../../config/router")/*.rsc
 bye
 "@
 
