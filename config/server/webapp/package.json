@@ -6,7 +6,7 @@
   "scripts": {
     "start": "bun run index.ts",
     "dev": "DEVMODE=true bun run --hot index.ts",
-    "build": "bun build ./index.ts --outdir ./build"
+    "build": "bun build ./index.ts --outdir ./build && cp -r ./public ./build/public"
   },
   "devDependencies": {
     "@types/bun": "latest"
