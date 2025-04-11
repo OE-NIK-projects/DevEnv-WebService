@@ -34,6 +34,21 @@ function Invoke-SSH {
     ssh -i $Paths.SSHKeyPath "$($Config.RemoteUser)@$($Config.RemoteHost)" "$Command"
 }
 
+function Invoke-SSHWithSU {
+    param ([string]$Command)
+
+    $script:PasswordForSudo ??= Read-Host 'Password for sudo' -MaskInput
+
+    $cmds = @"
+sudo -p '' -S su
+$PasswordForSudo
+$Command;
+exit
+"@
+
+    $cmds | ssh -i $Paths.SSHKeyPath -l $Config.RemoteUser -T $Config.RemoteHost
+}
+
 function Invoke-SCP {
     param ([string]$Source, [string]$Destination)
     scp -i $Paths.SSHKeyPath $Source "$($Config.RemoteUser)@$($Config.RemoteHost):$Destination"
@@ -43,16 +58,16 @@ function Test-CommandSuccess {
     param (
         [Parameter(Mandatory = $true)]
         [string]$SuccessMessage,
-        
+
         [Parameter(Mandatory = $true)]
         [string]$FailureMessage,
-        
+
         [Parameter(Mandatory = $false)]
         $Result = ""
     )
-    
+
     $resultString = $(if ($null -eq $Result) { "" } else { $Result | Out-String }).Trim()
-    
+
     if ($LASTEXITCODE -eq 0) {
         Write-Host $SuccessMessage -ForegroundColor Green
         return $true
@@ -133,15 +148,19 @@ function Set-SSHAuthentication {
 }
 
 function Set-ServerConfiguration {
-    Write-Host "Configuring server..." -ForegroundColor Cyan
-    $updateResult = Invoke-SSH "sudo apt update -qq 2>/dev/null && sudo apt upgrade -y -qq 2>/dev/null"
-    Test-CommandSuccess -SuccessMessage "Server updated" -FailureMessage "Server update failed: " -Result $updateResult | Out-Null
+    Write-Host 'Configuring server...' -ForegroundColor Cyan
 
-    $removeResult = Invoke-SSH "sudo apt autoremove -y > /dev/null 2>&1"
-    Test-CommandSuccess -SuccessMessage "Unused packages removed" -FailureMessage "Package removal failed: " -Result $removeResult | Out-Null
+    $updateResult = Invoke-SSHWithSU 'apt update -qq 2>/dev/null && apt upgrade -y -qq 2>/dev/null'
+    Test-CommandSuccess -SuccessMessage 'Server updated' -FailureMessage 'Server update failed' -Result $updateResult | Out-Null
 
-    $groupResult = Invoke-SSH "sudo groupadd docker; sudo usermod -aG docker,sudo $($Config.RemoteUser)"
-    Test-CommandSuccess -SuccessMessage "User groups configured" -FailureMessage "Group configuration failed: " -Result $groupResult | Out-Null
+    $installResult = Invoke-SSHWithSU 'apt install -yqq docker-compose 2>/dev/null'
+    Test-CommandSuccess -SuccessMessage 'Docker compose installed' -FailureMessage 'Docker compose install failed' -Result $installResult | Out-Null
+
+    $removeResult = Invoke-SSHWithSU 'apt autoremove -y 2>&1>/dev/null'
+    Test-CommandSuccess -SuccessMessage 'Unused packages removed' -FailureMessage 'Package removal failed' -Result $removeResult | Out-Null
+
+    $groupResult = Invoke-SSHWithSU "groupadd -f docker; usermod -aG docker,sudo $($Config.RemoteUser)"
+    Test-CommandSuccess -SuccessMessage 'User groups configured' -FailureMessage 'Group configuration failed' -Result $groupResult | Out-Null
 }
 
 function New-GitlabDirectories {
@@ -163,7 +182,7 @@ function Set-GitlabPassword {
     while ($true) {
         $newPass = Read-Host "Initial root password ($($Config.GitlabRootPassword))"
         if ([string]::IsNullOrWhiteSpace($newPass)) { return }
-        
+
         if ($newPass.Length -lt 8 -or
             $newPass -cnotmatch '[A-Z]' -or
             $newPass -cnotmatch '[a-z]' -or
@@ -196,7 +215,7 @@ GITLAB_SIDEKIQ_MAX_CONCURRENCY=10
 function Set-GitlabEnvironment {
     Write-Host "Setting up GitLab environment..." -ForegroundColor Cyan
     New-EnvironmentFile -Domain $Domains.Gitlab -Passwd $Config.GitlabRootPassword
-    
+
     # Validate that the source files exist locally
     if (-not (Test-Path $Paths.DotEnvFile)) {
         Write-Error "Local .env file not found at $($Paths.DotEnvFile)"
@@ -213,7 +232,7 @@ function Set-GitlabEnvironment {
         throw "Failed to upload .env file"
     }
     else {
-        Remove-Item $Paths.DotEnvFile
+        Remove-Item $Paths.DotEnvFile -Force
     }
 
     # Upload docker-compose.yml file
@@ -225,7 +244,7 @@ function Set-GitlabEnvironment {
 
 function Start-Gitlab {
     Write-Host "Starting GitLab..." -ForegroundColor Cyan
-    $result = Invoke-SSH "cd $($Config.DockerDir) && sudo docker compose up -d"
+    $result = Invoke-SSH "cd $($Config.DockerDir) && docker-compose up -d"
     Test-CommandSuccess -SuccessMessage "GitLab started" -FailureMessage "GitLab start failed: " -Result $result | Out-Null
 }
 
