@@ -10,37 +10,34 @@ class Test {
 	}
 }
 
-function Exit-WithError {
-	param($Message)
-	Write-Host 'Error:' $Message -ForegroundColor Red
-	exit 1
+function Test-Command {
+	param($Command)
+	if (!(Get-Command $Command -ErrorAction SilentlyContinue)) {
+		Write-Host "Command '$Command' not found!"
+		exit -1
+	}
 }
 
-if (!$IsWindows -and !(Get-Command 'sudo' -ErrorAction SilentlyContinue)) {
-	Exit-WithError 'sudo is not installed!'
+if (!$IsLinux) {
+	Write-Host 'Please run this script on a linux host!'
+	exit -1
 }
 
-if (!(Get-Command 'wg-quick' -ErrorAction SilentlyContinue)) {
-	Exit-WithError 'wg-quick is not installed!'
-}
-
-if (!(Get-Command 'ssh' -ErrorAction SilentlyContinue)) {
-	Exit-WithError 'ssh is not installed!'
-}
-
-if (!(Get-Command 'dhcping' -ErrorAction SilentlyContinue)) {
-	Exit-WithError 'dhcping is not installed!'
-}
+Test-Command 'id'
+Test-Command 'sudo'
+Test-Command 'wg-quick'
+Test-Command 'ssh'
+Test-Command 'dhcping'
 
 . "$PSScriptRoot/../router/values.ps1"
 
 $tests = (
 	[Test]::new("wg-quick up ran successfully", {
-			if ($IsWindows) {
-				wg-quick up $tempWgConfigPath
+			if ($IsRoot) {
+				wg-quick up $tempWgConfigPath 2>$null
 			}
 			else {
-				sudo -S wg-quick up $tempWgConfigPath
+				$PasswordForSudo | sudo -Sp '' wg-quick up $tempWgConfigPath 2>$null
 			}
 			return 0 -eq $LastExitCode
 		}
@@ -56,13 +53,13 @@ $tests = (
 		}
 	),
 
-	[Test]::new("External SSH port ($RouterExternalAddress`:$RouterSSHPort) is unreachable", {
-			return !$(Test-Connection $RouterExternalAddress -TcpPort $RouterSSHPort)
+	[Test]::new("External SSH port ($RouterExternalAddress`:22) is unreachable", {
+			return !$(Test-Connection $RouterExternalAddress -TcpPort 22)
 		}
 	),
 
-	[Test]::new("Tunnel SSH port ($RouterTunnelAddress`:$RouterSSHPort) is reachable", {
-			return $(Test-Connection $RouterTunnelAddress -TcpPort $RouterSSHPort)
+	[Test]::new("Tunnel SSH port ($RouterTunnelAddress`:22) is reachable", {
+			return $(Test-Connection $RouterTunnelAddress -TcpPort 22)
 		}
 	),
 
@@ -77,33 +74,44 @@ $tests = (
 	),
 
 	[Test]::new("Router SSH public key authentication", {
-			ssh -o PasswordAuthentication=no "admin@$RouterTunnelAddress" '/quit'
+			ssh -o PasswordAuthentication=no "admin@$RouterTunnelAddress" '/quit' 2>$null
 			return 0 -eq $LastExitCode
 		}
 	),
 
 	[Test]::new("wg-quick down ran successfully", {
-			if ($IsWindows) {
-				wg-quick down $tempWgConfigPath
+			if ($IsRoot) {
+				wg-quick down $tempWgConfigPath 2>$null
 			}
 			else {
-				sudo -S wg-quick down $tempWgConfigPath
+				$PasswordForSudo | sudo -Sp '' wg-quick down $tempWgConfigPath 2>$null
 			}
 			return 0 -eq $LastExitCode
 		}
 	),
 
 	[Test]::new("Router DHCP", {
-			if ($IsWindows) {
+			if ($IsRoot) {
 				dhcping -s 192.168.11.1
 			}
 			else {
-				sudo -S dhcping -s 192.168.11.1
+				$PasswordForSudo | sudo -Sp '' dhcping -s 192.168.11.1
 			}
 			return 0 -eq $LastExitCode
 		}
 	)
 )
+
+if ($(id -u) -ne 0) {
+	$PasswordForSudo = Read-Host 'Password for sudo' -MaskInput
+	if ([string]::IsNullOrEmpty($PasswordForSudo)) {
+		Write-Host 'Empty password provided, exiting...'
+		exit -1
+	}
+}
+else {
+	$IsRoot = $true
+}
 
 $tempWgConfigPath = "$PSScriptRoot/temp.peer1.conf"
 Copy-Item "$PSScriptRoot/../../config/wg-peers/peer1.conf" $tempWgConfigPath
@@ -112,7 +120,7 @@ $pass = 0
 $fail = 0
 
 for ($i = 0; $i -lt $tests.Count; $i++) {
-	$msg = "($($i + 1)/$($tests.Count)) $($tests[$i].Message)"
+	$msg = "($($i + 1)/$($tests.Count)) Expectation: $($tests[$i].Message)"
 	if ($tests[$i].Expression.Invoke()) {
 		Write-Host "[PASSED] $msg" -ForegroundColor Green
 		$pass++
@@ -129,5 +137,7 @@ if ($pass -eq $tests.Count) {
 	Write-Host "All $($tests.Count) tests passed!" -ForegroundColor Green
 }
 else {
-	Write-Host "From $($tests.Count) tests $pass passed and $fail failed!" -ForegroundColor Yellow
+	Write-Host "From $($tests.Count) tests $pass passed and $fail failed!" -ForegroundColor Red
 }
+
+exit $fail
