@@ -24,10 +24,13 @@ if (!$IsLinux) {
 }
 
 Test-Command 'id'
-Test-Command 'sudo'
 Test-Command 'wg-quick'
 Test-Command 'ssh'
 Test-Command 'dhcping'
+
+if ($(id -u) -eq 0) {
+	Test-Command 'sudo'
+}
 
 . "$PSScriptRoot/../router/values.ps1"
 
@@ -68,12 +71,12 @@ $tests = (
 		}
 	),
 
-	[Test]::new("DNS name 'router.lan' is resolved", {
-			return $(Test-Connection 'router.lan' -ErrorAction SilentlyContinue)
+	[Test]::new("DNS name 'boilerplate.lan' resolved successfully", {
+			return $(Test-Connection 'boilerplate.lan' -ErrorAction SilentlyContinue)
 		}
 	),
 
-	[Test]::new("Router SSH public key authentication", {
+	[Test]::new("SSH authentication with public key is successful", {
 			ssh -o PasswordAuthentication=no "admin@$RouterTunnelAddress" '/quit' 2>$null
 			return 0 -eq $LastExitCode
 		}

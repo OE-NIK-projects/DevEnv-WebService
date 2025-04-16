@@ -6,7 +6,7 @@ if (!(Get-Command 'openssl' -ErrorAction SilentlyContinue)) {
 }
 
 $originalPath = Get-Location
-$certsDir = "$PSScriptRoot/../config/certs"
+$certsDir = "$PSScriptRoot/../../config/certs"
 $tempFile = 'ext.tmp'
 
 $caKey = 'rca.key'
@@ -14,7 +14,7 @@ $caCer = 'rca.crt'
 $domainKey = 'domain.key'
 $domainCer = 'domain.crt'
 
-$domain = 'boilerplate.hu'
+$domain = 'boilerplate.lan'
 $altName = "DNS:$domain,DNS:*.$domain"
 $subject = "/C=HU/ST=Pest/L=Budapest/O=Boilerplate Kft./CN=$domain"
 
