@@ -20,3 +20,4 @@ $Organization = @{
     #Website                       = "https://server.lan"
 }
 
+$TimeoutInSeconds = 5

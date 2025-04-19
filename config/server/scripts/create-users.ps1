@@ -40,7 +40,9 @@ function Add-GiteaUser {
     }
 }
 
-Write-Message -Message "Starting Gitea user creation process..." -Type Info
+Write-Message -Message "Starting Gitea user creation process in $($TimeoutInSeconds)s..." -Type Info
+Start-Sleep -Seconds $TimeoutInSeconds
+
 $Users | ForEach-Object {
     Add-GiteaUser -Username $_.Username `
         -Email $_.Email `
