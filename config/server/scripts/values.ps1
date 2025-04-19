@@ -1,47 +1,53 @@
 $TimeoutInSeconds = 2
 
+$Api = @{
+    BaseUrl = "http://localhost:3000/api/v1"
+}
+
+$Admins = @(
+    @{ 
+        Username = "admin";
+        Email    = "admin@boilerplate.lan";
+        Password = "admin";
+    }
+)
+
 $Users = @(
     @{ 
-        Username = "admin"; 
-        Email    = "admin@boilerplate.lan"; 
-        Password = "admin"; 
-        Admin    = $true; 
-    },
+        Full_Name = "Mező György";
+        Username  = "mezo.gyorgy";
+        Email     = "mezo.gyorgy@boilerplate.lan";
+        Password  = "Password1!";
+    }
     @{ 
-        Username = "teszt.elek"; 
-        Email    = "teszt.elek@boilerplate.lan"; 
-        Password = "Password1!"; 
-        Admin    = $false; 
-    },
+        Full_Name = "Tóth Laci";
+        Username  = "toth.laci";
+        Email     = "toth.laci@boilerplate.lan";
+        Password  = "Password1!";
+    }
     @{ 
-        Username = "mezo.gyorgy"; 
-        Email    = "mezo.gyorgy@boilerplate.lan"; 
-        Password = "Password1!"; 
-        Admin    = $false; 
-    },
+        Full_Name = "Gábor Roland";
+        Username  = "gabi.roli";
+        Email     = "gabi.roli@boilerplate.lan";
+        Password  = "Password1!";
+    }
     @{ 
-        Username = "toth.laci"; 
-        Email    = "toth.laci@boilerplate.lan"; 
-        Password = "Password1!"; 
-        Admin    = $false; 
-    },
-    @{ 
-        Username = "gabi.roli"; 
-        Email    = "gabi.roli@boilerplate.lan"; 
-        Password = "Password1!"; 
-        Admin    = $false; 
-    },
+        Full_Name = "Jungle Diff";
+        Username  = "jungle.diff";
+        Email     = "jungle.diff@boilerplate.lan";
+        Password  = "Password1!";
+    }
     @{
-        Username = "xanax.enjoyer"; 
-        Email    = "xanax.enjoyer@boilerplate.lan"; 
-        Password = "Password1!"; 
-        Admin    = $false; 
-    },
+        Full_Name = "Demeter Attila"
+        Username  = "demeter.attila";
+        Email     = "demeter.attila@boilerplate.lan";
+        Password  = "Password1!";
+    }
     @{ 
-        Username = "jungle.diff"; 
-        Email    = "jungle.diff@boilerplate.lan"; 
-        Password = "Password1!"; 
-        Admin    = $false; 
+        Full_Name = "Benji Coleman";
+        Username  = "benji.coleman";
+        Email     = "benji.coleman@boilerplate.lan";
+        Password  = "Password1!";
     }
 )
 
