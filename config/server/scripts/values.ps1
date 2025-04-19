@@ -59,3 +59,68 @@ $Organizations = @(
     }
 )
 
+#Roles
+$Teams = @(
+    @{
+        name                      = "developer"
+        description               = "Developers with write access to code and pull requests"
+        can_create_org_repo       = $true
+        includes_all_repositories = $true
+        permission                = "write"
+        units                     = @(
+            "repo.actions",
+            "repo.code",
+            "repo.issues",
+            "repo.ext_issues",
+            "repo.wiki",
+            "repo.ext_wiki",
+            "repo.pulls",
+            "repo.releases",
+            "repo.projects",
+            "repo.ext_wiki"
+        )
+        units_map                 = @{
+            "repo.actions"    = "write"
+            "repo.packages"   = "write"
+            "repo.code"       = "write"
+            "repo.issues"     = "write"
+            "repo.ext_issues" = "none"
+            "repo.wiki"       = "write"
+            "repo.pulls"      = "write"
+            "repo.releases"   = "write"
+            "repo.projects"   = "write"
+            "repo.ext_wiki"   = "none"
+        }
+    }
+    @{
+        name                      = "reporter"
+        description               = "Reporters with read access and issue reporting capabilities"
+        can_create_org_repo       = $false
+        includes_all_repositories = $true
+        permission                = "read"
+        units                     = @(
+            "repo.actions",
+            "repo.code",
+            "repo.issues",
+            "repo.ext_issues",
+            "repo.wiki",
+            "repo.ext_wiki",
+            "repo.pulls",
+            "repo.releases",
+            "repo.projects",
+            "repo.ext_wiki"
+        )
+        units_map                 = @{
+            "repo.actions"    = "none"
+            "repo.packages"   = "none"
+            "repo.code"       = "read"
+            "repo.issues"     = "write"
+            "repo.ext_issues" = "none"
+            "repo.wiki"       = "read"
+            "repo.pulls"      = "read"
+            "repo.releases"   = "read"
+            "repo.projects"   = "read"
+            "repo.ext_wiki"   = "none"
+        }
+    }
+)
