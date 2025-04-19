@@ -3,8 +3,12 @@
 
 function Add-GiteaUser {
     [CmdletBinding()]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', 'AdminPassword')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', 'Password')]
     param (
+        [Parameter(Mandatory = $true)]
+        [string]$FullName,
+
         [Parameter(Mandatory = $true)]
         [string]$Username,
 
@@ -15,25 +19,37 @@ function Add-GiteaUser {
         [string]$Password,
 
         [Parameter()]
-        [switch]$Admin,
+        [string]$ApiBaseUrl = $Api.BaseUrl,
 
         [Parameter()]
-        [string]$DockerComposeService = "gitea"
+        [string]$AdminUsername = $Admins[0].Username,
+        
+        [Parameter()]
+        [string]$AdminPassword = $Admins[0].Password
     )
 
     try {
-        $adminFlag = if ($Admin) { "--admin" } else { "" }
-        $command = "gitea admin user create $adminFlag --username '$Username' --email '$Email' --password '$Password'"
+        $base64Auth = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("$($AdminUsername):$($AdminPassword)"))
+        
+        $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+        $headers.Add("Content-Type", "application/json")
+        $headers.Add("Authorization", "Basic $base64Auth")
 
-        Write-Message -Message "Executing: docker compose exec $DockerComposeService $command" -Type Command
-        $result = Invoke-Expression "docker compose exec $DockerComposeService $command 2>&1" | Out-String | ForEach-Object { $_.TrimEnd() }
+        $body = @{
+            username             = $Username
+            email                = $Email
+            password             = $Password
+            full_name            = $FullName
+            must_change_password = $true
+        } | ConvertTo-Json
 
-        if ($LASTEXITCODE -eq 0) {
-            Write-Message -Message "Successfully created user: $Username ($Email)" -Type Success
-        }
-        else {
-            Write-Message -Message "$result" -Type Error
-        }
+        $uri = "$ApiBaseUrl/admin/users"
+        Write-Message -Message "Sending POST request to $uri with body:`n$body" -Type Command
+
+        $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body $body -ErrorAction Stop
+
+        Write-Message -Message "Successfully created user: $Username ($Email)" -Type Success
+        $response | ConvertTo-Json | ForEach-Object { Write-Message -Message $_ -Type Default }
     }
     catch {
         Write-Message -Message "Failed to create user: $Username. Error: $($_.Exception.Message)" -Type Error
@@ -44,10 +60,10 @@ Write-Message -Message "Starting Gitea user creation process in $($TimeoutInSeco
 Start-Sleep -Seconds $TimeoutInSeconds
 
 $Users | ForEach-Object {
-    Add-GiteaUser -Username $_.Username `
+    Add-GiteaUser -FullName $_.Full_Name `
+        -Username $_.Username `
         -Email $_.Email `
         -Password $_.Password `
-        -Admin:$_.Admin `
         -Verbose
 }
 Write-Message -Message "Gitea user creation process completed." -Type Info

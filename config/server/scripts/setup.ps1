@@ -8,6 +8,7 @@ try {
     
     Set-Location -Path $originalDir
 
+    & "$PSScriptRoot/create-admin-users.ps1"
     & "$PSScriptRoot/create-users.ps1"
     & "$PSScriptRoot/create-organization.ps1"
     & "$PSScriptRoot/create-teams.ps1"

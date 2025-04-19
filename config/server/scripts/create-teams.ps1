@@ -11,14 +11,14 @@ function Add-Team {
         [Parameter(Mandatory = $true)]
         [string]$OrganizationUsername,
         
-        [Parameter(Mandatory = $true)]
-        [string]$AdminUsername,
+        [Parameter()]
+        [string]$AdminUsername = $Admins[0].Username,
         
-        [Parameter(Mandatory = $true)]
-        [string]$AdminPassword,
+        [Parameter()]
+        [string]$AdminPassword = $Admins[0].Password,
 
         [Parameter()]
-        [string]$ApiBaseUrl = "http://localhost:3000/api/v1"
+        [string]$ApiBaseUrl = $Api.BaseUrl
     )
 
     try {
@@ -57,8 +57,6 @@ $Organizations | ForEach-Object {
     $Teams | ForEach-Object {
         Add-Team -Team $_ `
                  -OrganizationUsername $orgUsername `
-                 -AdminUsername $Users[0].Username `
-                 -AdminPassword $Users[0].Password `
                  -Verbose
     }
 }

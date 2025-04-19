@@ -8,14 +8,14 @@ function Add-Organization {
         [Parameter(Mandatory = $true)]
         [hashtable]$Organization,
         
-        [Parameter(Mandatory = $true)]
-        [string]$AdminUsername,
+        [Parameter()]
+        [string]$AdminUsername = $Admins[0].Username,
         
-        [Parameter(Mandatory = $true)]
-        [string]$AdminPassword,
+        [Parameter()]
+        [string]$AdminPassword = $Admins[0].Password,
 
         [Parameter()]
-        [string]$ApiBaseUrl = "http://localhost:3000/api/v1"
+        [string]$ApiBaseUrl = $Api.BaseUrl
     )
 
     try {
@@ -47,8 +47,6 @@ function Add-Organization {
 Write-Message -Message "Starting Gitea organization creation process..." -Type Info
 $Organizations | ForEach-Object {
     Add-Organization -Organization $_ `
-                    -AdminUsername $Users[0].Username `
-                    -AdminPassword $Users[0].Password `
-                    -Verbose
+        -Verbose
 }
 Write-Message -Message "Gitea organization creation process completed." -Type Info
