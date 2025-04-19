@@ -8,3 +8,15 @@ $Users = @(
     @{ Username = "jungle.diff"; Email = "jungle.diff@boilerplate.lan"; Password = "Password1!"; Admin = $false }
 )
 
+$Organization = @{
+    Username                      = "Boilerplate";
+    Description                   = "Innovatív, Clean Code elveit betartó Java gyűlölő cég.";
+    Full_name                     = "Boilerplate Kft.";
+    Email                         = "boilerplate@boilerplate.lan";
+    Location                      = "Budapest";
+    Repo_admin_change_team_access = $true;
+    Visibility                    = "public";
+    #TODO: Create DNS, Nginx with SSL
+    #Website                       = "https://server.lan"
+}
+
