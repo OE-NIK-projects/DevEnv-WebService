@@ -1,0 +1,280 @@
+/* CSS Custom Properties (Variables) */
+:root {
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.25rem;
+    --spacing-xl: 2rem;
+    
+    --color-primary: #7e6fff;
+    --color-primary-hover: #6b5ce7;
+    --color-text-dark: #b2b0bf;
+    --color-text-light: #333;
+    --color-bg-dark: #1a1a27;
+    --color-bg-dark-card: #1e1e2d;
+    --color-bg-light: #f5f5f5;
+    --color-white: #ffffff;
+
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --transition-default: 0.3s ease;
+    --transition-fast: 0.2s ease;
+}
+
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    font-family: "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+}
+
+/* Layout */
+.layout-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.mud-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Header */
+.mud-appbar {
+    display: flex;
+    align-items: center;
+    padding: 0 var(--spacing-md);
+    min-height: 56px;
+    box-shadow: var(--shadow-sm);
+    transition: background-color var(--transition-default);
+}
+
+body.dark-mode .mud-appbar {
+    background-color: rgba(26, 26, 39, 0.9);
+    color: var(--color-text-dark);
+}
+
+body.light-mode .mud-appbar {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: var(--color-text-light);
+}
+
+/* Navigation */
+.nav-menu {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.nav-button {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+body.dark-mode .nav-button:hover,
+body.dark-mode .nav-button:focus {
+    background-color: rgba(126, 111, 255, 0.2);
+    color: var(--color-primary);
+}
+
+body.light-mode .nav-button:hover,
+body.light-mode .nav-button:focus {
+    background-color: rgba(66, 66, 66, 0.1);
+    color: var(--color-primary);
+}
+
+.nav-button.active {
+    background-color: rgba(126, 111, 255, 0.3);
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+.nav-icon {
+    width: 35px;
+    height: 35px;
+    margin-right: var(--spacing-sm);
+    vertical-align: middle;
+}
+
+/* Buttons and Interactive Elements */
+.mud-icon-button {
+    padding: var(--spacing-sm);
+    color: inherit;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: opacity var(--transition-fast);
+}
+
+.mud-icon-button:hover {
+    opacity: 0.8;
+}
+
+.mud-button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: background-color var(--transition-fast);
+}
+
+.mud-button:hover {
+    background-color: var(--color-primary-hover);
+}
+
+/* Main Content */
+.mud-main-content {
+    flex-grow: 1;
+    padding: var(--spacing-xl);
+    transition: background-color var(--transition-default);
+}
+
+body.dark-mode .mud-main-content {
+    background-color: var(--color-bg-dark);
+    color: var(--color-text-dark);
+}
+
+body.light-mode .mud-main-content {
+    background-color: var(--color-bg-light);
+    color: var(--color-text-light);
+}
+
+/* Footer */
+.mud-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--spacing-md);
+    background-color: var(--color-bg-dark-card);
+    color: var(--color-white);
+    transition: background-color var(--transition-default);
+}
+
+body.light-mode .mud-footer {
+    background-color: #e0e0e0;
+    color: var(--color-text-light);
+}
+
+/* Typography */
+.mud-text-h3 { font-size: 2rem; font-weight: 600; margin-bottom: var(--spacing-lg); }
+.mud-text-h5 { font-size: 1.5rem; font-weight: 500; margin-bottom: 0.75rem; }
+.mud-text-h6 { font-size: 1.25rem; font-weight: 500; margin-bottom: var(--spacing-md); }
+.mud-text-body1, .mud-text { font-size: 1rem; }
+
+/* Components */
+.mud-paper {
+    background-color: var(--color-bg-dark-card);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    transition: background-color var(--transition-default);
+}
+
+body.light-mode .mud-paper {
+    background-color: var(--color-white);
+}
+
+.mud-card {
+    background-color: var(--color-bg-dark-card);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: background-color var(--transition-default);
+}
+
+body.light-mode .mud-card {
+    background-color: var(--color-white);
+}
+
+.mud-card-content {
+    padding: var(--spacing-md);
+}
+
+/* Utilities */
+.mud-spacer { flex-grow: 1; }
+.h-100 { height: 100%; }
+.mb-4 { margin-bottom: var(--spacing-md); }
+.mb-5 { margin-bottom: var(--spacing-lg); }
+.d-flex { display: flex; }
+.gap-3 { gap: 0.75rem; }
+
+/* Grid */
+.mud-grid {
+    display: grid;
+    gap: var(--spacing-md);
+    grid-template-columns: repeat(12, 1fr);
+}
+
+.mud-item { grid-column: span 12; }
+
+@media (min-width: 768px) {
+    .mud-item.md-4 { grid-column: span 4; }
+}
+
+/* Price Calculator */
+.price-calculator {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    max-width: 400px;
+    margin-top: var(--spacing-md);
+}
+
+.price-calculator label { font-weight: 500; }
+
+.price-calculator select,
+.price-calculator input {
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    border: 1px solid #333;
+    background-color: var(--color-bg-dark-card);
+    color: var(--color-text-dark);
+}
+
+body.light-mode .price-calculator select,
+body.light-mode .price-calculator input {
+    background-color: var(--color-white);
+    color: var(--color-text-light);
+    border-color: #ccc;
+}
+
+#price-result { font-weight: 500; }
+
+/* Links */
+.mud-link {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+.mud-link:hover {
+    color: #9a91ff;
+}
+
+/* Miscellaneous */
+.mud-list { list-style: none; }
+.mud-list-item { margin-bottom: var(--spacing-sm); }
+.mud-elevation-1 { box-shadow: var(--shadow-sm); }
+.rounded { border-radius: var(--radius-md); }
+.mud-icon-end { font-size: 1.25rem; }
