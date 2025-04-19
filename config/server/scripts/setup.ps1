@@ -10,6 +10,7 @@ try {
 
     & "$PSScriptRoot/create-users.ps1"
     & "$PSScriptRoot/create-organization.ps1"
+    & "$PSScriptRoot/create-teams.ps1"
 } catch {
     Write-Error "An error occurred during setup: $_"
     exit 1
