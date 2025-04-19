@@ -7,11 +7,11 @@ Ennek a szkriptnek a módosításával meg lehet határozni a `setup.ps1` szám�
 **Alap beállítások**
 
 ```ps1
-# A MikroTik router admin felhasználó jelszava
-$RouterPassword = 'lalilulelo'
-
-# A MikroTik router külső címe
+# A MikroTik forgalomirányító külső címe
 $RouterExternalAddress = '10.0.0.128'
+
+# A MikroTik forgalomirányító admin felhasználójának jelszava
+$RouterPassword = 'lalilulelo'
 ```
 
 ## A `setup.ps1` használata
@@ -30,6 +30,8 @@ $RouterExternalAddress = '10.0.0.128'
 | `SetConf`  | Lefuttatja a felmásolt konfigurációs fájlokat a forgalomirányítón.                                                |
 | `SetPass`  | Beállítja a megadott felhasználó jelszavát a forgalomirányítón.                                                   |
 | `Full`     | Lefuttatja a `CopyKey`, `CopyConf`, `SetConf` és `SetPass` műveleteket.                                           |
+| `SSH`      | Rákapcsolódik a forgalomirányítóra SSH-n keresztül.                                                               |
+| `TestConn` | Leteszteli, hogy valamelyik címen elérhető-e a forgalomirányító.                                                  |
 
 ### Opcionális paraméterek
 
