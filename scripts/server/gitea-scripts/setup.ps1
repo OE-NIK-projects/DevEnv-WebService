@@ -3,7 +3,7 @@ try {
 
     $originalDir = Get-Location
 
-    Set-Location -Path "~/docker"
+    Set-Location -Path "$PSScriptRoot/../"
     docker compose up -d
     
     Set-Location -Path $originalDir

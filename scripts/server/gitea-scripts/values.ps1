@@ -1,4 +1,4 @@
-$TimeoutInSeconds = 2
+$TimeoutInSeconds = 5
 
 $Api = @{
     BaseUrl = "http://localhost:3000/api/v1"
