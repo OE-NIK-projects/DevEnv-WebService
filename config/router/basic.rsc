@@ -2,14 +2,14 @@
 
 # Assign IP address for LAN interface
 /ip/address
-:if ([find where address="192.168.11.1/24"]="") do={
-	add address=192.168.11.1/24 interface=ether2 network=192.168.11.0
+:if ([find where address="192.168.11.1/23"]="") do={
+	add address=192.168.11.1/23 interface=ether2 network=192.168.10.0
 }
 
 # Add DHCP pool for LAN
 /ip/pool
 :if ([find where name="inside-pool"]="") do={
-	add name="inside-pool" ranges=192.168.11.200-192.168.11.249
+	add name="inside-pool" ranges=192.168.11.100-192.168.11.199
 }
 
 # Add a DHCP server for LAN interface
@@ -21,13 +21,13 @@
 # Lease address for server
 /ip/dhcp-server/lease
 :if ([find where address="192.168.11.11"]="") do={
-	add address=192.168.11.11 mac-address=00:0C:29:74:F0:BA server=inside-dhcp
+	add address=192.168.11.11 mac-address=00:00:00:00:11:11 server=inside-dhcp
 }
 
 # Add DHCP network for LAN
 /ip/dhcp-server/network
-:if ([find where address="192.168.11.0/24"]="") do={
-	add address=192.168.11.0/24 comment="LAN" dns-server=192.168.11.1 gateway=192.168.11.1 netmask=24
+:if ([find where address="192.168.10.0/23"]="") do={
+	add address=192.168.10.0/23 comment="LAN" dns-server=192.168.11.1 gateway=192.168.11.1 netmask=23
 }
 
 # Add Google's DNS server and allow clients to use the cache

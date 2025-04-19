@@ -6,12 +6,12 @@ if (!(Get-Command 'openssl' -ErrorAction SilentlyContinue)) {
 }
 
 $originalPath = Get-Location
-$certsDir = "$PSScriptRoot/../config/certs"
+$certsDir = "$PSScriptRoot/../../config/certs"
 
 $caKey = 'rca.key'
 $caCer = 'rca.crt'
 
-$domain = 'boilerplate.hu'
+$domain = 'boilerplate.lan'
 $subject = "/C=HU/ST=Pest/L=Budapest/O=Boilerplate Certificate Authority/CN=$domain"
 
 $keySize = 2048

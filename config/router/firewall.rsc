@@ -11,10 +11,12 @@ add action=accept chain=input comment="Allow server HTTPS" dst-port=443 in-inter
 add action=accept chain=input comment="Allow WireGuard" dst-port=7172 in-interface=ether1 protocol=udp
 add action=drop chain=input comment="Block outside" in-interface=ether1
 
-# Only allow SSH and WebFig access from the Wireguard tunnel
+# Only allow SSH and WebFig access from the Wireguard tunnel and host
 add action=accept chain=input comment="Allow WebFig from WireGuard" dst-port=80 protocol=tcp src-address=172.16.0.0/24
+add action=accept chain=input comment="Allow WebFig from host" dst-port=80 protocol=tcp src-address=192.168.10.1
 add action=drop chain=input comment="Block WebFig" dst-port=80 protocol=tcp
 add action=accept chain=input comment="Allow SSH from WireGuard" dst-port=22 protocol=tcp src-address=172.16.0.0/24
+add action=accept chain=input comment="Allow SSH from host" dst-port=22 protocol=tcp src-address=192.168.10.1
 add action=drop chain=input comment="Block SSH" dst-port=22 protocol=tcp
 
 # Forward ports
