@@ -12,7 +12,8 @@ try {
     if (-not (Test-Path -Path $giteaBaseDir)) {
         New-Item -Path $giteaBaseDir -ItemType Directory -Force | Out-Null
         Write-Message "Created directory: $giteaBaseDir" -Type Success
-    } else {
+    }
+    else {
         Write-Message "Directory already exists: $giteaBaseDir" -Type Error
     }
 
@@ -20,7 +21,8 @@ try {
     if (-not (Test-Path -Path $configDir)) {
         New-Item -Path $configDir -ItemType Directory -Force | Out-Null
         Write-Message "Created directory: $configDir" -Type Success
-    } else {
+    }
+    else {
         Write-Message "Directory already exists: $configDir" -Type Error
     }
 
@@ -28,11 +30,13 @@ try {
     if (-not (Test-Path -Path $dataDir)) {
         New-Item -Path $dataDir -ItemType Directory -Force | Out-Null
         Write-Message "Created directory: $dataDir" -Type Success
-    } else {
+    }
+    else {
         Write-Message "Directory already exists: $dataDir" -Type Error
     }
 
     Write-Message "Gitea directory structure created successfully." -Type Success
-} catch {
+}
+catch {
     Write-Message "Failed to create directories: $_" -Type Error
 }

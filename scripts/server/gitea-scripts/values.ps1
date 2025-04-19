@@ -137,9 +137,32 @@ $TeamAssignments = @{
         "developer" = @("mezo.gyorgy", "toth.laci")
         "reporter"  = @("jungle.diff")
     }
-    "Backend" = @{
+    "Backend"  = @{
         "Owners"    = @("benji.coleman")
         "developer" = @("gabi.roli", "demeter.attila")
         "reporter"  = @("jungle.diff")
     }
 }
+
+$Repositories = @(
+    @{
+        OrganizationUsername = "Frontend"
+        Name                 = "Frontend-Repo"
+        Description          = "Main repository for Frontend"
+        Private              = $false
+        AutoInit             = $true
+        Gitignore            = "Node,VisualStudioCode,VisualStudio,JetBrains,Linux,macOS,Windows"
+        License              = "MIT"
+        Readme               = "Default"
+    }
+    @{
+        OrganizationUsername = "Backend"
+        Name                 = "Backend-Repo"
+        Description          = "Main repository for Backend"
+        Private              = $false
+        AutoInit             = $true
+        Gitignore            = "Node,VisualStudioCode,VisualStudio,JetBrains,Linux,macOS,Windows"
+        License              = "MIT"
+        Readme               = "Default"
+    }
+)

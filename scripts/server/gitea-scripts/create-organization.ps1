@@ -37,7 +37,6 @@ function Add-Organization {
         $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body $body -ErrorAction Stop
 
         Write-Message -Message "Successfully created organization: $($Organization.Username)" -Type Success
-        $response | ConvertTo-Json
     }
     catch {
         Write-Message -Message "Failed to create organization: $($Organization.Username). Error: $($_.Exception.Message)" -Type Error

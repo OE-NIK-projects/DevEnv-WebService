@@ -96,9 +96,9 @@ foreach ($org in $Organizations) {
 
     foreach ($teamName in $TeamAssignments[$orgUsername].Keys) {
         $teamId = Get-TeamId -OrganizationUsername $orgUsername `
-                             -TeamName $teamName `
-                             -AdminUsername $Admins[0].Username `
-                             -AdminPassword $Admins[0].Password `
+            -TeamName $teamName `
+            -AdminUsername $Admins[0].Username `
+            -AdminPassword $Admins[0].Password `
 
         if ($null -eq $teamId) {
             Write-Message -Message "Skipping user assignment for team '$teamName' in '$orgUsername' due to missing team." -Type Error
@@ -109,9 +109,10 @@ foreach ($org in $Organizations) {
         $usersToAssign = $TeamAssignments[$orgUsername][$teamName]
         foreach ($username in $usersToAssign) {
             Add-UserToTeam -TeamId $teamId `
-                           -Username $username `
-                           -AdminUsername $Admins[0].Username `
-                           -AdminPassword $Admins[0].Password `
+                -Username $username `
+                -AdminUsername $Admins[0].Username `
+                -AdminPassword $Admins[0].Password `
+        
         }
     }
 }

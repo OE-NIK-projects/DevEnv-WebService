@@ -49,7 +49,6 @@ function Add-GiteaUser {
         $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body $body -ErrorAction Stop
 
         Write-Message -Message "Successfully created user: $Username ($Email)" -Type Success
-        $response | ConvertTo-Json
     }
     catch {
         Write-Message -Message "Failed to create user: $Username. Error: $($_.Exception.Message)" -Type Error

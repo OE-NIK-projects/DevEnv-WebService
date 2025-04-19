@@ -55,7 +55,7 @@ $Organizations | ForEach-Object {
     $orgUsername = $_.Username
     $Teams | ForEach-Object {
         Add-Team -Team $_ `
-                 -OrganizationUsername $orgUsername `
+            -OrganizationUsername $orgUsername `
     }
 }
 Write-Message -Message "Gitea team creation process completed." -Type Info
