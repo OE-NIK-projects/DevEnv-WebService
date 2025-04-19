@@ -28,12 +28,7 @@ function Add-Organization {
         $body = @{
             username                      = $Organization.Username
             description                   = $Organization.Description
-            full_name                     = $Organization.Full_name
-            location                      = $Organization.Location
             repo_admin_change_team_access = $Organization.Repo_admin_change_team_access
-            visibility                    = $Organization.Visibility
-            #TODO: Create DNS, Nginx with SSL
-            #website                       = $Organization.Website
         } | ConvertTo-Json
 
         $uri = "$ApiBaseUrl/orgs"
@@ -50,8 +45,10 @@ function Add-Organization {
 }
 
 Write-Message -Message "Starting Gitea organization creation process..." -Type Info
-Add-Organization -Organization $Organization `
-                -AdminUsername $Users[0].Username `
-                -AdminPassword $Users[0].Password `
-                -Verbose
+$Organizations | ForEach-Object {
+    Add-Organization -Organization $_ `
+                    -AdminUsername $Users[0].Username `
+                    -AdminPassword $Users[0].Password `
+                    -Verbose
+}
 Write-Message -Message "Gitea organization creation process completed." -Type Info
