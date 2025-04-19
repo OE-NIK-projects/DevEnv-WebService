@@ -34,6 +34,18 @@ if ($(id -u) -eq 0) {
 
 . "$PSScriptRoot/../router/values.ps1"
 
+if ([string]::IsNullOrWhiteSpace($RouterExternalAddress)) {
+	$RouterExternalAddress = '10.0.0.128'
+}
+
+if ([string]::IsNullOrWhiteSpace($RouterInternalAddress)) {
+	$RouterInternalAddress = '192.168.11.1'
+}
+
+if ([string]::IsNullOrWhiteSpace($RouterTunnelAddress)) {
+	$RouterTunnelAddress = '172.16.0.1'
+}
+
 $tests = (
 	[Test]::new("wg-quick up ran successfully", {
 			if ($IsRoot) {
@@ -47,7 +59,7 @@ $tests = (
 	),
 
 	[Test]::new("LAN is reachable", {
-			return $(Test-Connection '192.168.11.1' -ErrorAction SilentlyContinue)
+			return $(Test-Connection $RouterInternalAddress -ErrorAction SilentlyContinue)
 		}
 	),
 
