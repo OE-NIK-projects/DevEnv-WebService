@@ -39,12 +39,11 @@ function Add-Team {
         } | ConvertTo-Json -Depth 10
 
         $uri = "$ApiBaseUrl/orgs/$OrganizationUsername/teams"
-        Write-Message -Message "Sending POST request to $uri with body:`n$body" -Type Command
+        Write-Message -Message "Sending POST request to $uri" -Type Command
 
         $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body $body -ErrorAction Stop
 
         Write-Message -Message "Successfully created team: $($Team.name) in organization: $OrganizationUsername" -Type Success
-        $response | ConvertTo-Json -Depth 10 | ForEach-Object { Write-Message -Message $_ -Type Default }
     }
     catch {
         Write-Message -Message "Failed to create team: $($Team.name) in organization: $OrganizationUsername. Error: $($_.Exception.Message)" -Type Error
@@ -57,7 +56,6 @@ $Organizations | ForEach-Object {
     $Teams | ForEach-Object {
         Add-Team -Team $_ `
                  -OrganizationUsername $orgUsername `
-                 -Verbose
     }
 }
 Write-Message -Message "Gitea team creation process completed." -Type Info

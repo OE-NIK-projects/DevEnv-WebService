@@ -130,3 +130,16 @@ $Teams = @(
         }
     }
 )
+
+$TeamAssignments = @{
+    "Frontend" = @{
+        "Owners"    = @("benji.coleman")
+        "developer" = @("mezo.gyorgy", "toth.laci")
+        "reporter"  = @("jungle.diff")
+    }
+    "Backend" = @{
+        "Owners"    = @("benji.coleman")
+        "developer" = @("gabi.roli", "demeter.attila")
+        "reporter"  = @("jungle.diff")
+    }
+}

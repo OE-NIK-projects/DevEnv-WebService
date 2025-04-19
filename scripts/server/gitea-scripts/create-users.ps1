@@ -44,12 +44,12 @@ function Add-GiteaUser {
         } | ConvertTo-Json
 
         $uri = "$ApiBaseUrl/admin/users"
-        Write-Message -Message "Sending POST request to $uri with body:`n$body" -Type Command
+        Write-Message -Message "Sending POST request to $uri" -Type Command
 
         $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body $body -ErrorAction Stop
 
         Write-Message -Message "Successfully created user: $Username ($Email)" -Type Success
-        $response | ConvertTo-Json | ForEach-Object { Write-Message -Message $_ -Type Default }
+        $response | ConvertTo-Json
     }
     catch {
         Write-Message -Message "Failed to create user: $Username. Error: $($_.Exception.Message)" -Type Error
@@ -64,6 +64,5 @@ $Users | ForEach-Object {
         -Username $_.Username `
         -Email $_.Email `
         -Password $_.Password `
-        -Verbose
 }
 Write-Message -Message "Gitea user creation process completed." -Type Info

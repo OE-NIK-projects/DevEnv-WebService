@@ -32,12 +32,12 @@ function Add-Organization {
         } | ConvertTo-Json
 
         $uri = "$ApiBaseUrl/orgs"
-        Write-Message -Message "Sending POST request to $uri with body:`n$body" -Type Command
+        Write-Message -Message "Sending POST request to $uri" -Type Command
 
         $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body $body -ErrorAction Stop
 
         Write-Message -Message "Successfully created organization: $($Organization.Username)" -Type Success
-        $response | ConvertTo-Json | ForEach-Object { Write-Message -Message $_ -Type Default }
+        $response | ConvertTo-Json
     }
     catch {
         Write-Message -Message "Failed to create organization: $($Organization.Username). Error: $($_.Exception.Message)" -Type Error
@@ -47,6 +47,5 @@ function Add-Organization {
 Write-Message -Message "Starting Gitea organization creation process..." -Type Info
 $Organizations | ForEach-Object {
     Add-Organization -Organization $_ `
-        -Verbose
 }
 Write-Message -Message "Gitea organization creation process completed." -Type Info

@@ -43,6 +43,5 @@ $Admins | ForEach-Object {
     Add-GiteaAdminUser -Username $_.Username `
         -Email $_.Email `
         -Password $_.Password `
-        -Verbose
 }
 Write-Message -Message "Gitea admin user creation process completed." -Type Info
