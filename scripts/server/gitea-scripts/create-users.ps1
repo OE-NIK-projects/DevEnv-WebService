@@ -1,5 +1,6 @@
 . $PSScriptRoot/write-message.ps1
 . $PSScriptRoot/values.ps1
+. $PSScriptRoot/send-api-request.ps1
 
 function Add-GiteaUser {
     [CmdletBinding()]
@@ -29,24 +30,22 @@ function Add-GiteaUser {
     )
 
     try {
-        $base64Auth = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("$($AdminUsername):$($AdminPassword)"))
-        
-        $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
-        $headers.Add("Content-Type", "application/json")
-        $headers.Add("Authorization", "Basic $base64Auth")
-
         $body = @{
             username             = $Username
             email                = $Email
             password             = $Password
             full_name            = $FullName
             must_change_password = $true
-        } | ConvertTo-Json
+        }
 
         $uri = "$ApiBaseUrl/admin/users"
-        Write-Message -Message "Sending POST request to $uri" -Type Command
 
-        $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body $body -ErrorAction Stop
+        [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'response')]
+        $response = Send-ApiRequest -Url $uri `
+                                    -Method Post `
+                                    -AdminUsername $AdminUsername `
+                                    -AdminPassword $AdminPassword `
+                                    -Body $body
 
         Write-Message -Message "Successfully created user: $Username ($Email)" -Type Success
     }
@@ -60,8 +59,8 @@ Start-Sleep -Seconds $TimeoutInSeconds
 
 $Users | ForEach-Object {
     Add-GiteaUser -FullName $_.Full_Name `
-        -Username $_.Username `
-        -Email $_.Email `
-        -Password $_.Password `
+                  -Username $_.Username `
+                  -Email $_.Email `
+                  -Password $_.Password
 }
 Write-Message -Message "Gitea user creation process completed." -Type Info

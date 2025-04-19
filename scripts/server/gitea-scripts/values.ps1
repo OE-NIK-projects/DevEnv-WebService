@@ -1,9 +1,12 @@
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'response')]
 $TimeoutInSeconds = 5
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'response')]
 $Api = @{
     BaseUrl = "http://localhost:3000/api/v1"
 }
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'response')]
 $Admins = @(
     @{ 
         Username = "admin";
@@ -12,6 +15,7 @@ $Admins = @(
     }
 )
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'response')]
 $Users = @(
     @{ 
         Full_Name = "Mező György";
@@ -52,6 +56,7 @@ $Users = @(
 )
 
 #Groups
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'response')]
 $Organizations = @(
     @{
         Username                      = "Frontend";
@@ -66,6 +71,7 @@ $Organizations = @(
 )
 
 #Roles
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'response')]
 $Teams = @(
     @{
         name                      = "developer"
@@ -131,6 +137,7 @@ $Teams = @(
     }
 )
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'response')]
 $TeamAssignments = @{
     "Frontend" = @{
         "Owners"    = @("benji.coleman")
@@ -144,6 +151,7 @@ $TeamAssignments = @{
     }
 }
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'response')]
 $Repositories = @(
     @{
         OrganizationUsername = "Frontend"

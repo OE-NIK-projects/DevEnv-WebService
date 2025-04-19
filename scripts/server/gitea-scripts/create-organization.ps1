@@ -1,5 +1,6 @@
 . $PSScriptRoot/write-message.ps1
 . $PSScriptRoot/values.ps1
+. $PSScriptRoot/send-api-request.ps1
 
 function Add-Organization {
     [CmdletBinding()]
@@ -13,28 +14,26 @@ function Add-Organization {
         
         [Parameter()]
         [string]$AdminPassword = $Admins[0].Password,
-
+        
         [Parameter()]
         [string]$ApiBaseUrl = $Api.BaseUrl
     )
-
-    try {
-        $base64Auth = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("$($AdminUsername):$($AdminPassword)"))
         
-        $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
-        $headers.Add("Content-Type", "application/json")
-        $headers.Add("Authorization", "Basic $base64Auth")
-
+    try {
         $body = @{
             username                      = $Organization.Username
             description                   = $Organization.Description
             repo_admin_change_team_access = $Organization.Repo_admin_change_team_access
-        } | ConvertTo-Json
-
+        }
+            
         $uri = "$ApiBaseUrl/orgs"
-        Write-Message -Message "Sending POST request to $uri" -Type Command
 
-        $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body $body -ErrorAction Stop
+        [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'response')]
+        $response = Send-ApiRequest -Url $uri `
+                                    -Method Post `
+                                    -AdminUsername $AdminUsername `
+                                    -AdminPassword $AdminPassword `
+                                    -Body $body
 
         Write-Message -Message "Successfully created organization: $($Organization.Username)" -Type Success
     }
@@ -45,6 +44,6 @@ function Add-Organization {
 
 Write-Message -Message "Starting Gitea organization creation process..." -Type Info
 $Organizations | ForEach-Object {
-    Add-Organization -Organization $_ `
+    Add-Organization -Organization $_
 }
 Write-Message -Message "Gitea organization creation process completed." -Type Info

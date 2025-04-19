@@ -1,5 +1,6 @@
 . $PSScriptRoot/write-message.ps1
 . $PSScriptRoot/values.ps1
+. $PSScriptRoot/send-api-request.ps1
 
 function Add-Team {
     [CmdletBinding()]
@@ -22,12 +23,6 @@ function Add-Team {
     )
 
     try {
-        $base64Auth = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("$($AdminUsername):$($AdminPassword)"))
-        
-        $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
-        $headers.Add("Content-Type", "application/json")
-        $headers.Add("Authorization", "Basic $base64Auth")
-
         $body = @{
             can_create_org_repo       = $Team.can_create_org_repo
             description               = $Team.description
@@ -36,12 +31,16 @@ function Add-Team {
             permission                = $Team.permission
             units                     = $Team.units
             units_map                 = $Team.units_map
-        } | ConvertTo-Json -Depth 10
+        }
 
         $uri = "$ApiBaseUrl/orgs/$OrganizationUsername/teams"
-        Write-Message -Message "Sending POST request to $uri" -Type Command
 
-        $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body $body -ErrorAction Stop
+        [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'response')]
+        $response = Send-ApiRequest -Url $uri `
+                                    -Method Post `
+                                    -AdminUsername $AdminUsername `
+                                    -AdminPassword $AdminPassword `
+                                    -Body $body
 
         Write-Message -Message "Successfully created team: $($Team.name) in organization: $OrganizationUsername" -Type Success
     }
@@ -55,7 +54,7 @@ $Organizations | ForEach-Object {
     $orgUsername = $_.Username
     $Teams | ForEach-Object {
         Add-Team -Team $_ `
-            -OrganizationUsername $orgUsername `
+                 -OrganizationUsername $orgUsername
     }
 }
 Write-Message -Message "Gitea team creation process completed." -Type Info

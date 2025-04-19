@@ -1,5 +1,6 @@
 . $PSScriptRoot/write-message.ps1
 . $PSScriptRoot/values.ps1
+. $PSScriptRoot/send-api-request.ps1
 
 function Add-Repository {
     [CmdletBinding()]
@@ -24,31 +25,42 @@ function Add-Repository {
         [string]$Description = "Main repository for $OrganizationUsername",
 
         [Parameter()]
-        [bool]$Private = $false
+        [bool]$Private = $false,
+
+        [Parameter()]
+        [bool]$AutoInit = $false,
+
+        [Parameter()]
+        [string]$Gitignore = "",
+
+        [Parameter()]
+        [string]$Readme = ""
     )
 
     try {
-        $base64Auth = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("$($AdminUsername):$($AdminPassword)"))
-        
-        $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
-        $headers.Add("Content-Type", "application/json")
-        $headers.Add("Authorization", "Basic $base64Auth")
-
         $body = @{
             name           = $RepoName
             description    = $Description
             private        = $Private
             default_branch = "main"
-            auto_init      = $repo.AutoInit
-            gitignores     = $repo.Gitignore
-            license        = $repo.License
-            readme         = $repo.Readme
-        } | ConvertTo-Json
+            auto_init      = $AutoInit
+        }
+
+        if ($Gitignore) {
+            $body["gitignore"] = $Gitignore
+        }
+        if ($Readme) {
+            $body["readme"] = $Readme
+        }
 
         $uri = "$ApiBaseUrl/orgs/$OrganizationUsername/repos"
-        Write-Message -Message "Sending POST request to $uri" -Type Command
 
-        $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body $body -ErrorAction Stop
+        [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'response')]
+        $response = Send-ApiRequest -Url $uri `
+                                    -Method Post `
+                                    -AdminUsername $AdminUsername `
+                                    -AdminPassword $AdminPassword `
+                                    -Body $body
 
         Write-Message -Message "Successfully created repository '$RepoName' in organization '$OrganizationUsername'" -Type Success
     }
@@ -64,16 +76,22 @@ foreach ($repo in $Repositories) {
     $repoName = $repo.Name
     $description = $repo.Description
     $private = $repo.Private
+    $autoInit = $repo.AutoInit
+    $gitignore = $repo.Gitignore
+    $readme = $repo.Readme
 
     Write-Message -Message "Creating repository '$repoName' for organization: $orgUsername" -Type Info
 
     Add-Repository -OrganizationUsername $orgUsername `
-        -RepoName $repoName `
-        -AdminUsername $Admins[0].Username `
-        -AdminPassword $Admins[0].Password `
-        -Description $description `
-        -Private $private `
-
+                   -RepoName $repoName `
+                   -AdminUsername $Admins[0].Username `
+                   -AdminPassword $Admins[0].Password `
+                   -Description $description `
+                   -Private $private `
+                   -AutoInit $autoInit `
+                   -Gitignore $gitignore `
+                   -Readme $readme `
+                   -Verbose
 }
 
 Write-Message -Message "Repository creation process completed." -Type Info

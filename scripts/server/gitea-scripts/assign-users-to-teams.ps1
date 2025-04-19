@@ -1,5 +1,6 @@
 . $PSScriptRoot/write-message.ps1
 . $PSScriptRoot/values.ps1
+. $PSScriptRoot/send-api-request.ps1
 
 function Get-TeamId {
     [CmdletBinding()]
@@ -22,16 +23,11 @@ function Get-TeamId {
     )
 
     try {
-        $base64Auth = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("$($AdminUsername):$($AdminPassword)"))
-        
-        $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
-        $headers.Add("Content-Type", "application/json")
-        $headers.Add("Authorization", "Basic $base64Auth")
-
         $uri = "$ApiBaseUrl/orgs/$OrganizationUsername/teams"
-        Write-Message -Message "Fetching teams from $uri" -Type Command
-
-        $teams = Invoke-RestMethod -Uri $uri -Method Get -Headers $headers -ErrorAction Stop
+        $teams = Send-ApiRequest -Url $uri `
+                                 -Method Get `
+                                 -AdminUsername $AdminUsername `
+                                 -AdminPassword $AdminPassword
 
         $team = $teams | Where-Object { $_.name -eq $TeamName }
         if ($team) {
@@ -70,16 +66,13 @@ function Add-UserToTeam {
     )
 
     try {
-        $base64Auth = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("$($AdminUsername):$($AdminPassword)"))
-        
-        $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
-        $headers.Add("Content-Type", "application/json")
-        $headers.Add("Authorization", "Basic $base64Auth")
-
         $uri = "$ApiBaseUrl/teams/$TeamId/members/$Username"
-        Write-Message -Message "Adding user '$Username' to team ID $TeamId via $uri" -Type Command
-
-        $response = Invoke-RestMethod -Uri $uri -Method Put -Headers $headers -ErrorAction Stop
+        
+        [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'response')]
+        $response = Send-ApiRequest -Url $uri `
+                                    -Method Put `
+                                    -AdminUsername $AdminUsername `
+                                    -AdminPassword $AdminPassword
 
         Write-Message -Message "Successfully added user '$Username' to team ID $TeamId" -Type Success
     }
@@ -96,9 +89,9 @@ foreach ($org in $Organizations) {
 
     foreach ($teamName in $TeamAssignments[$orgUsername].Keys) {
         $teamId = Get-TeamId -OrganizationUsername $orgUsername `
-            -TeamName $teamName `
-            -AdminUsername $Admins[0].Username `
-            -AdminPassword $Admins[0].Password `
+                             -TeamName $teamName `
+                             -AdminUsername $Admins[0].Username `
+                             -AdminPassword $Admins[0].Password
 
         if ($null -eq $teamId) {
             Write-Message -Message "Skipping user assignment for team '$teamName' in '$orgUsername' due to missing team." -Type Error
@@ -109,10 +102,9 @@ foreach ($org in $Organizations) {
         $usersToAssign = $TeamAssignments[$orgUsername][$teamName]
         foreach ($username in $usersToAssign) {
             Add-UserToTeam -TeamId $teamId `
-                -Username $username `
-                -AdminUsername $Admins[0].Username `
-                -AdminPassword $Admins[0].Password `
-        
+                           -Username $username `
+                           -AdminUsername $Admins[0].Username `
+                           -AdminPassword $Admins[0].Password
         }
     }
 }
