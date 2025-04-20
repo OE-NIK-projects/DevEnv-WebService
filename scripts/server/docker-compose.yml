@@ -1,7 +1,27 @@
 services:
+  nginx:
+    image: nginx:latest
+    container_name: $NGINX_CONTAINER_NAME
+    env_file:
+      - .env
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+      - ./nginx/logs:/var/log/nginx
+    ports:
+      - "${NGINX_HTTP_PORT}:80"
+      - "${NGINX_HTTPS_PORT}:443"
+    depends_on:
+      gitea:
+        condition: service_started
+      webapp:
+        condition: service_started
+    networks:
+      - gitea-network
+
   gitea:
     image: docker.gitea.com/gitea:1.23.7-rootless
-    container_name: gitea
+    container_name: $GITEA_CONTAINER_NAME
     env_file:
       - .env
     volumes:
@@ -9,5 +29,22 @@ services:
       - ./gitea/config:/etc/gitea
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-    ports:
-      - '3000:3000'
+    networks:
+      - gitea-network
+
+  webapp:
+    build:
+      context: ./webapp
+      dockerfile: ./Dockerfile
+    container_name: $WEBAPP_CONTAINER_NAME
+    env_file:
+      - .env
+    environment:
+      - PORT=${WEBAPP_PORT}
+      - DEVMODE=${WEBAPP_DEVMODE}
+    networks:
+      - gitea-network
+
+networks:
+  gitea-network:
+    driver: bridge

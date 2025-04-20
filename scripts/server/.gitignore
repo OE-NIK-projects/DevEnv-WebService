@@ -1,3 +1,6 @@
 gitea/
 temp/
 tmp/
+nginx/
+webapp/
+.env

@@ -1,19 +1,32 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'EnvVars')]
 $EnvVars = @{
+    #Gitea
+    GITEA_CONTAINER_NAME                 = "gitea"
     GITEA____APP_NAME                    = "Boilerplate Kft."
     GITEA__database__DB_TYPE             = "sqlite3"
     GITEA__openid__ENABLE_OPENID_SIGNIN  = "false"
     GITEA__openid__ENABLE_OPENID_SIGNUP  = "false"
     GITEA__security__INSTALL_LOCK        = "true"
-    GITEA__server__DOMAIN                = "localhost"
+    GITEA__server__ROOT_URL              = "https://gitea.boilerplate.lan"
+    GITEA__server__DOMAIN                = "gitea.boilerplate.lan"
     GITEA__server__LANDING_PAGE          = "explore"
     GITEA__service__DISABLE_REGISTRATION = "true"
-    GITEA__server__HTTP_PORT             = "3000"
+    GITEA__server__HTTP_PORT             = "80"
+    GITEA__server__HTTPs_PORT            = "443"
+    #Nginx
+    NGINX_CONTAINER_NAME                 = "nginx"
+    NGINX_HTTP_PORT                      = "80"
+    NGINX_HTTPS_PORT                     = "443"
+    # Web App
+    WEBAPP_CONTAINER_NAME                = "webapp"
+    WEBAPP_PORT                          = "80"
+    WEBAPP_DOMAIN                        = "boilerplate.lan"
+    WEBAPP_DEVMODE                       = "false"
 }
 
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Api')]
 $Api = @{
-    BaseUrl = "http://$($EnvVars.GITEA__server__DOMAIN):3000/api/v1"
+    BaseUrl = "https://$($EnvVars.GITEA__server__DOMAIN)/api/v1"
 }
 
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'TimeoutInSeconds')]
