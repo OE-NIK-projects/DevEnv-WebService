@@ -1,5 +1,5 @@
 const DEVMODE = process.env["DEVMODE"] !== "false";
-const PORT = process.env["PORT"] || "8080";
+const PORT = process.env["PORT"] || "80";
 
 const pricesData = await Bun.file("./public/db/services.json").json();
 

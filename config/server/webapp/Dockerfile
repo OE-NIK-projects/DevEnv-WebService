@@ -5,7 +5,7 @@ RUN bun install
 COPY . .
 RUN bun run build
 
-FROM oven/bun:latest as runner
+FROM oven/bun:latest AS runner
 WORKDIR /app
 COPY --from=builder /app/build /app
 EXPOSE 80
