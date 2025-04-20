@@ -1,12 +1,25 @@
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'response')]
-$TimeoutInSeconds = 5
-
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'response')]
-$Api = @{
-    BaseUrl = "http://localhost:3000/api/v1"
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'EnvVars')]
+$EnvVars = @{
+    GITEA____APP_NAME                    = "Boilerplate Kft."
+    GITEA__database__DB_TYPE             = "sqlite3"
+    GITEA__openid__ENABLE_OPENID_SIGNIN  = "false"
+    GITEA__openid__ENABLE_OPENID_SIGNUP  = "false"
+    GITEA__security__INSTALL_LOCK        = "true"
+    GITEA__server__DOMAIN                = "localhost"
+    GITEA__server__LANDING_PAGE          = "explore"
+    GITEA__service__DISABLE_REGISTRATION = "true"
+    GITEA__server__HTTP_PORT             = "3000"
 }
 
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'response')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Api')]
+$Api = @{
+    BaseUrl = "http://$($EnvVars.GITEA__server__DOMAIN):3000/api/v1"
+}
+
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'TimeoutInSeconds')]
+$TimeoutInSeconds = 5
+
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Admins')]
 $Admins = @(
     @{ 
         Username = "admin";
@@ -15,7 +28,7 @@ $Admins = @(
     }
 )
 
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'response')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Users')]
 $Users = @(
     @{ 
         Full_Name = "Mező György";
@@ -56,7 +69,7 @@ $Users = @(
 )
 
 #Groups
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'response')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Organizations')]
 $Organizations = @(
     @{
         Username                      = "Frontend";
@@ -71,7 +84,7 @@ $Organizations = @(
 )
 
 #Roles
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'response')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Teams')]
 $Teams = @(
     @{
         name                      = "developer"
@@ -137,7 +150,7 @@ $Teams = @(
     }
 )
 
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'response')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'TeamAssignments')]
 $TeamAssignments = @{
     "Frontend" = @{
         "Owners"    = @("benji.coleman")
@@ -151,7 +164,7 @@ $TeamAssignments = @{
     }
 }
 
-[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'response')]
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Repositories')]
 $Repositories = @(
     @{
         OrganizationUsername = "Frontend"

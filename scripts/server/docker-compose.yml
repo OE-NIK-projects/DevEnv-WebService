@@ -2,15 +2,8 @@ services:
   gitea:
     image: docker.gitea.com/gitea:1.23.7-rootless
     container_name: gitea
-    environment:
-      - GITEA____APP_NAME=Bolierplate Kft.
-      - GITEA__database__DB_TYPE=sqlite3
-      - GITEA__openid__ENABLE_OPENID_SIGNIN=false
-      - GITEA__openid__ENABLE_OPENID_SIGNUP=false
-      - GITEA__security__INSTALL_LOCK=true
-      - GITEA__server__DOMAIN=localhost
-      - GITEA__server__LANDING_PAGE=explore
-      - GITEA__service__DISABLE_REGISTRATION=true
+    env_file:
+      - .env
     volumes:
       - ./gitea/data:/var/lib/gitea
       - ./gitea/config:/etc/gitea

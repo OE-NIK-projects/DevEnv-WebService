@@ -1,5 +1,6 @@
 try {
     & "$PSScriptRoot/create-dirs.ps1"
+    & "$PSScriptRoot/create-dotenv.ps1"
     & "$PSScriptRoot/start-compose.ps1"
     & "$PSScriptRoot/create-admin-users.ps1"
     & "$PSScriptRoot/create-users.ps1"
