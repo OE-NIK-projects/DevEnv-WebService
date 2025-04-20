@@ -10,9 +10,11 @@ $EnvVars = @{
     GITEA__server__ROOT_URL              = "https://gitea.boilerplate.lan"
     GITEA__server__DOMAIN                = "gitea.boilerplate.lan"
     GITEA__server__LANDING_PAGE          = "explore"
-    GITEA__service__DISABLE_REGISTRATION = "true"
     GITEA__server__HTTP_PORT             = "80"
-    GITEA__server__HTTPs_PORT            = "443"
+    GITEA__server__HTTPS_PORT            = "443"
+    GITEA__server__DISABLE_SSH           = "true"
+    GITEA__server__START_SSH_SERVER      = "false"
+    GITEA__service__DISABLE_REGISTRATION = "true"
     #Nginx
     NGINX_CONTAINER_NAME                 = "nginx"
     NGINX_HTTP_PORT                      = "80"
@@ -26,7 +28,7 @@ $EnvVars = @{
 
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Api')]
 $Api = @{
-    BaseUrl = "https://$($EnvVars.GITEA__server__DOMAIN)/api/v1"
+    BaseUrl = "$($EnvVars.GITEA__server__ROOT_URL)/api/v1"
 }
 
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'TimeoutInSeconds')]
