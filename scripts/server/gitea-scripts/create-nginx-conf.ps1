@@ -60,22 +60,6 @@ http {
     sendfile        on;
     keepalive_timeout  65;
 
-    # Default server for unmatched requests on port 80
-    server {
-        listen 80 default_server;
-        server_name _;
-        return 444; # Close connection for unmatched requests
-    }
-
-    # Default server for unmatched requests on port 443
-    server {
-        listen 443 ssl default_server;
-        server_name _;
-        ssl_certificate /etc/nginx/certs/domain.crt;
-        ssl_certificate_key /etc/nginx/certs/domain.key;
-        return 444; # Close connection for unmatched requests
-    }
-
     # Gitea: Redirect HTTP to HTTPS
     server {
         listen 80;
