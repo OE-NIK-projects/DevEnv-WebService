@@ -29,7 +29,7 @@ function Get-TeamId {
                                  -AdminUsername $AdminUsername `
                                  -AdminPassword $AdminPassword
 
-        $team = $teams | Where-Object { $_.name -eq $TeamName }
+        $team = $teams | Where-Object { $_.name -eq $TeamName } | Select-Object -First 1
         if ($team) {
             Write-Message -Message "Found team '$TeamName' in organization '$OrganizationUsername' with ID: $($team.id)" -Type Success
             return $team.id
@@ -98,7 +98,6 @@ foreach ($org in $Organizations) {
             continue
         }
 
-        # Assign users to the team
         $usersToAssign = $TeamAssignments[$orgUsername][$teamName]
         foreach ($username in $usersToAssign) {
             Add-UserToTeam -TeamId $teamId `
