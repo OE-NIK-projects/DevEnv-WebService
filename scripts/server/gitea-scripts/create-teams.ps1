@@ -41,7 +41,7 @@ function Add-Team {
                                     -AdminUsername $AdminUsername `
                                     -AdminPassword $AdminPassword `
                                     -Body $body
-
+                                    
         Write-Message -Message "Successfully created team: $($Team.name) in organization: $OrganizationUsername" -Type Success
     }
     catch {

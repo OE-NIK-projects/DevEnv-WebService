@@ -47,7 +47,7 @@ function Add-Repository {
         }
 
         if ($Gitignore) {
-            $body["gitignore"] = $Gitignore
+            $body["gitignores"] = $Gitignore
         }
         if ($Readme) {
             $body["readme"] = $Readme
@@ -91,7 +91,6 @@ foreach ($repo in $Repositories) {
                    -AutoInit $autoInit `
                    -Gitignore $gitignore `
                    -Readme $readme `
-                   -Verbose
 }
 
 Write-Message -Message "Repository creation process completed." -Type Info
