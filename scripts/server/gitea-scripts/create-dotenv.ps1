@@ -32,9 +32,11 @@ function Generate-EnvFile {
         }
 
         $envContent | Out-File -FilePath $envFilePath -Encoding utf8 -Force
-        Write-Message -Message "Successfully generated .env file at: $envFilePath" -Type Success
+        Write-Message -Message "Generated .env file at: $envFilePath" -Type Success
 
-        Write-Message -Message "Generated .env content:`n$($envContent -join "`n")" -Type Info
+        if ($Debug.EnableDotEnvFileLogging) {
+            Write-Message -Message "Generated .env content:`n$($envContent -join "`n")" -Type Info
+        }
     }
     catch {
         Write-Message -Message "Failed to generate .env file at: $envFilePath. Error: $($_.Exception.Message)" -Type Error
@@ -48,4 +50,4 @@ $targetDir = Join-Path -Path $PSScriptRoot -ChildPath ".."
 Write-Message -Message "Using target directory: $targetDir" -Type Info
 
 Generate-EnvFile -EnvVars $EnvVars -OutputDir $targetDir
-Write-Message -Message ".env file generation process completed." -Type Info
+Write-Message -Message ".env file generation process completed.`n" -Type Info

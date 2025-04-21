@@ -62,7 +62,7 @@ function Add-Repository {
                                     -AdminPassword $AdminPassword `
                                     -Body $body
 
-        Write-Message -Message "Successfully created repository '$RepoName' in organization '$OrganizationUsername'" -Type Success
+        Write-Message -Message "Created repository '$RepoName' in organization '$OrganizationUsername'" -Type Success
     }
     catch {
         Write-Message -Message "Failed to create repository '$RepoName' in organization '$OrganizationUsername'. Error: $($_.Exception.Message)" -Type Error
@@ -93,4 +93,4 @@ foreach ($repo in $Repositories) {
                    -Readme $readme `
 }
 
-Write-Message -Message "Repository creation process completed." -Type Info
+Write-Message -Message "Repository creation process completed.`n" -Type Info

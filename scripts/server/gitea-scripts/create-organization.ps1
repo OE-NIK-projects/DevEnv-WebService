@@ -35,7 +35,7 @@ function Add-Organization {
                                     -AdminPassword $AdminPassword `
                                     -Body $body
 
-        Write-Message -Message "Successfully created organization: $($Organization.Username)" -Type Success
+        Write-Message -Message "Created organization: $($Organization.Username)" -Type Success
     }
     catch {
         Write-Message -Message "Failed to create organization: $($Organization.Username). Error: $($_.Exception.Message)" -Type Error
@@ -46,4 +46,4 @@ Write-Message -Message "Starting Gitea organization creation process..." -Type I
 $Organizations | ForEach-Object {
     Add-Organization -Organization $_
 }
-Write-Message -Message "Gitea organization creation process completed." -Type Info
+Write-Message -Message "Gitea organization creation process completed.`n" -Type Info

@@ -74,7 +74,7 @@ function Add-UserToTeam {
                                     -AdminUsername $AdminUsername `
                                     -AdminPassword $AdminPassword
 
-        Write-Message -Message "Successfully added user '$Username' to team ID $TeamId" -Type Success
+        Write-Message -Message "Added user '$Username' to team ID $TeamId" -Type Success
     }
     catch {
         Write-Message -Message "Failed to add user '$Username' to team ID $TeamId. Error: $($_.Exception.Message)" -Type Error
@@ -108,4 +108,4 @@ foreach ($org in $Organizations) {
     }
 }
 
-Write-Message -Message "User assignment to teams process completed." -Type Info
+Write-Message -Message "User assignment to teams process completed.`n" -Type Info

@@ -117,9 +117,11 @@ http {
 "@
 
         $nginxConf | Out-File -FilePath $confFilePath -Encoding utf8 -Force
-        Write-Message -Message "Successfully generated nginx.conf at: $confFilePath" -Type Success
+        Write-Message -Message "Generated nginx.conf at: $confFilePath" -Type Success
 
-        Write-Message -Message "Generated nginx.conf content:`n$nginxConf" -Type Info
+        if ($Debug.EnableNginxConfFileLogging) {
+            Write-Message -Message "Generated nginx.conf content:`n$nginxConf" -Type Info
+        }
     }
     catch {
         Write-Message -Message "Failed to generate nginx.conf at: $confFilePath. Error: $($_.Exception.Message)" -Type Error
@@ -143,4 +145,4 @@ Generate-NginxConf -OutputDir $targetDir `
     -WebAppProxyPassHost $EnvVars.WEBAPP_CONTAINER_NAME `
     -WebAppProxyPassPort $EnvVars.WEBAPP_PORT
 
-Write-Message -Message "nginx.conf generation process completed." -Type Info
+Write-Message -Message "nginx.conf generation process completed.`n" -Type Info

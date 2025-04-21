@@ -54,4 +54,4 @@ Write-Message -Message "Using path: $targetPath" -Type Info
 
 Install-Certificates -CertPath $targetPath
 
-Write-Message -Message "Certificate installation process completed." -Type Info
+Write-Message -Message "Certificate installation process completed.`n" -Type Info

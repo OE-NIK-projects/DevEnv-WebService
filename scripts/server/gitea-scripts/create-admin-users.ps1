@@ -25,7 +25,7 @@ function Add-GiteaAdminUser {
         $result = Invoke-Expression "docker compose exec $DockerComposeService $command 2>&1" | Out-String | ForEach-Object { $_.TrimEnd() }
 
         if ($LASTEXITCODE -eq 0) {
-            Write-Message -Message "Successfully created user: $Username ($Email)" -Type Success
+            Write-Message -Message "Created user: $Username ($Email)" -Type Success
         }
         else {
             Write-Message -Message "$result" -Type Error
@@ -44,4 +44,4 @@ $Admins | ForEach-Object {
         -Email $_.Email `
         -Password $_.Password `
 }
-Write-Message -Message "Gitea admin user creation process completed." -Type Info
+Write-Message -Message "Gitea admin user creation process completed.`n" -Type Info

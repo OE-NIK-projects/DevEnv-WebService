@@ -47,7 +47,7 @@ function Add-GiteaUser {
                                     -AdminPassword $AdminPassword `
                                     -Body $body
 
-        Write-Message -Message "Successfully created user: $Username ($Email)" -Type Success
+        Write-Message -Message "Created user: $Username ($Email)" -Type Success
     }
     catch {
         Write-Message -Message "Failed to create user: $Username. Error: $($_.Exception.Message)" -Type Error
@@ -63,4 +63,4 @@ $Users | ForEach-Object {
                   -Email $_.Email `
                   -Password $_.Password
 }
-Write-Message -Message "Gitea user creation process completed." -Type Info
+Write-Message -Message "Gitea user creation process completed.`n" -Type Info

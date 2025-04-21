@@ -35,7 +35,7 @@ try {
         Write-Message "Directory already exists: $dataDir" -Type Error
     }
 
-    Write-Message "Gitea directory structure created successfully." -Type Success
+    Write-Message "Gitea directory structure created successfully.`n" -Type Success
 }
 catch {
     Write-Message "Failed to create directories: $_" -Type Error

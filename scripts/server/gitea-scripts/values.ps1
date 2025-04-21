@@ -1,3 +1,10 @@
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Debug')]
+$Debug =@{
+    EnableJsonBodyLogging = $false
+    EnableNginxConfFileLogging = $false
+    EnableDotEnvFileLogging = $false
+}
+
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Domains')]
 $Domains = @{
     Gitea = "gitea.boilerplate.lan"
@@ -25,7 +32,7 @@ $EnvVars = @{
     NGINX_HTTP_PORT                      = "80"
     NGINX_HTTPS_PORT                     = "443"
     CERTS_DIR                            = "../nginx/certs"
-    # Web App
+    #WebApp
     WEBAPP_CONTAINER_NAME                = "webapp"
     WEBAPP_PORT                          = "80"
     WEBAPP_DOMAIN                        = $Domains.WebApp

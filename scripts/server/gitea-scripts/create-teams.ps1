@@ -42,7 +42,7 @@ function Add-Team {
                                     -AdminPassword $AdminPassword `
                                     -Body $body
                                     
-        Write-Message -Message "Successfully created team: $($Team.name) in organization: $OrganizationUsername" -Type Success
+        Write-Message -Message "Created team: $($Team.name) in organization: $OrganizationUsername" -Type Success
     }
     catch {
         Write-Message -Message "Failed to create team: $($Team.name) in organization: $OrganizationUsername. Error: $($_.Exception.Message)" -Type Error
@@ -57,4 +57,4 @@ $Organizations | ForEach-Object {
                  -OrganizationUsername $orgUsername
     }
 }
-Write-Message -Message "Gitea team creation process completed." -Type Info
+Write-Message -Message "Gitea team creation process completed.`n" -Type Info

@@ -1,4 +1,5 @@
 . $PSScriptRoot/write-message.ps1
+. $PSScriptRoot/values.ps1
 
 function Send-ApiRequest {
     [CmdletBinding()]
@@ -31,7 +32,7 @@ function Send-ApiRequest {
         $bodyJson = if ($Body) { $Body | ConvertTo-Json -Depth 10 } else { $null }
 
         Write-Message -Message "Sending $Method request to $Url" -Type Command
-        if ($bodyJson) {
+        if ($bodyJson -and $Debug.EnableJsonBodyLogging) {
             Write-Message -Message "Request body:`n$bodyJson" -Type Command
         }
 
