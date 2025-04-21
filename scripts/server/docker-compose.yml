@@ -21,7 +21,7 @@ services:
 
   gitea:
     image: docker.gitea.com/gitea:1.23.7-rootless
-    container_name: $GITEA_CONTAINER_NAME
+    container_name: ${GITEA_CONTAINER_NAME}
     env_file:
       - .env
     volumes:
