@@ -1,3 +1,9 @@
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Domains')]
+$Domains = @{
+    Gitea = "gitea.boilerplate.lan"
+    WebApp = "boilerplate.lan"
+}
+
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'EnvVars')]
 $EnvVars = @{
     #Gitea
@@ -7,11 +13,10 @@ $EnvVars = @{
     GITEA__openid__ENABLE_OPENID_SIGNIN  = "false"
     GITEA__openid__ENABLE_OPENID_SIGNUP  = "false"
     GITEA__security__INSTALL_LOCK        = "true"
-    GITEA__server__ROOT_URL              = "https://gitea.boilerplate.lan"
-    GITEA__server__DOMAIN                = "gitea.boilerplate.lan"
+    GITEA__server__DOMAIN                = $Domains.Gitea
+    GITEA__server__HTTP_PORT             = "3000"
+    GITEA__server__ROOT_URL              = "https://$($Domains.Gitea)"
     GITEA__server__LANDING_PAGE          = "explore"
-    GITEA__server__HTTP_PORT             = "80"
-    GITEA__server__HTTPS_PORT            = "443"
     GITEA__server__DISABLE_SSH           = "true"
     GITEA__server__START_SSH_SERVER      = "false"
     GITEA__service__DISABLE_REGISTRATION = "true"
@@ -19,10 +24,11 @@ $EnvVars = @{
     NGINX_CONTAINER_NAME                 = "nginx"
     NGINX_HTTP_PORT                      = "80"
     NGINX_HTTPS_PORT                     = "443"
+    CERTS_DIR                            = "../nginx/certs"
     # Web App
     WEBAPP_CONTAINER_NAME                = "webapp"
     WEBAPP_PORT                          = "80"
-    WEBAPP_DOMAIN                        = "boilerplate.lan"
+    WEBAPP_DOMAIN                        = $Domains.WebApp
     WEBAPP_DEVMODE                       = "false"
 }
 
