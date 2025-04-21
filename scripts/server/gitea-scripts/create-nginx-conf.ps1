@@ -73,8 +73,8 @@ http {
         server_name $GiteaDomain;
 
         # SSL configuration
-        ssl_certificate /etc/nginx/certs/gitea.boilerplate.lan.crt;
-        ssl_certificate_key /etc/nginx/certs/gitea.boilerplate.lan.key;
+        ssl_certificate /etc/nginx/certs/domain.crt;
+        ssl_certificate_key /etc/nginx/certs/domain.key;
 
         location / {
             client_max_body_size 512M;
@@ -102,8 +102,8 @@ http {
         server_name $WebAppDomain;
         
         # SSL configuration
-        ssl_certificate /etc/nginx/certs/boilerplate.lan.crt;
-        ssl_certificate_key /etc/nginx/certs/boilerplate.lan.key;
+        ssl_certificate /etc/nginx/certs/domain.crt;
+        ssl_certificate_key /etc/nginx/certs/domain.key;
 
         location / {
             proxy_pass http://$($WebAppProxyPassHost):$($WebAppProxyPassPort);
