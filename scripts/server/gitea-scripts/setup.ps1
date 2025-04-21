@@ -1,5 +1,6 @@
 try {
     & "$PSScriptRoot/create-certificates.ps1"
+    & "$PSScriptRoot/install-certificates.ps1"
     & "$PSScriptRoot/create-nginx-conf.ps1"
     & "$PSScriptRoot/create-dotenv.ps1"
     & "$PSScriptRoot/create-dirs.ps1"
