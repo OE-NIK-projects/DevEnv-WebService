@@ -34,9 +34,9 @@ function Send-ApiRequest {
         if ($bodyJson) {
             Write-Message -Message "Request body:`n$bodyJson" -Type Command
         }
-        
-        [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'response')]
+
         $response = Invoke-RestMethod -Uri $Url -Method $Method -Headers $headers -Body $bodyJson -ErrorAction Stop
+        return $response
     }
     catch {
         Write-Message -Message "Request to $Url failed. Error: $($_.Exception.Message)" -Type Error
