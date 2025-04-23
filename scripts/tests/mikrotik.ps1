@@ -1,5 +1,7 @@
 #!/usr/bin/env pwsh
 
+. "$PSScriptRoot/results.ps1"
+
 class Test {
 	[string] $Message
 	[System.Func[bool]] $Expression
@@ -47,7 +49,7 @@ if ([string]::IsNullOrWhiteSpace($RouterTunnelAddress)) {
 }
 
 $tests = (
-	[Test]::new("wg-quick up ran successfully", {
+	[Test]::new("'wg-quick up' ran successfully", {
 			if ($IsRoot) {
 				wg-quick up $tempWgConfigPath 2>$null
 			}
@@ -68,7 +70,7 @@ $tests = (
 		}
 	),
 
-	[Test]::new("External SSH port ($RouterExternalAddress`:22) is unreachable", {
+	[Test]::new("External SSH port ($RouterExternalAddress`:22) is blocked", {
 			return !$(Test-Connection $RouterExternalAddress -TcpPort 22)
 		}
 	),
@@ -94,7 +96,7 @@ $tests = (
 		}
 	),
 
-	[Test]::new("wg-quick down ran successfully", {
+	[Test]::new("'wg-quick down' ran successfully", {
 			if ($IsRoot) {
 				wg-quick down $tempWgConfigPath 2>$null
 			}
@@ -105,7 +107,7 @@ $tests = (
 		}
 	),
 
-	[Test]::new("Router DHCP", {
+	[Test]::new("Received address from router via DHCP", {
 			if ($IsRoot) {
 				dhcping -s 192.168.11.1
 			}
@@ -131,28 +133,34 @@ else {
 $tempWgConfigPath = "$PSScriptRoot/temp.peer1.conf"
 Copy-Item "$PSScriptRoot/../../config/wg-peers/peer1.conf" $tempWgConfigPath
 
-$pass = 0
-$fail = 0
+$passes = 0
+$fails = 0
 
 for ($i = 0; $i -lt $tests.Count; $i++) {
-	$msg = "($($i + 1)/$($tests.Count)) Expectation: $($tests[$i].Message)"
+	$text = "($($i + 1)/$($tests.Count)) Expectation: $($tests[$i].Message)"
+	$file = "$PSScriptRoot/_mtr/$(($i + 1).ToString("D2")).json"
+
 	if ($tests[$i].Expression.Invoke()) {
-		Write-Host "[PASSED] $msg" -ForegroundColor Green
-		$pass++
+		Write-Host "[PASSED] $text" -ForegroundColor Green
+		$passes++
+		Write-Result $file $tests[$i].Message $true
 	}
 	else {
-		Write-Host "[FAILED] $msg" -ForegroundColor Red
-		$fail++
+		Write-Host "[FAILED] $text" -ForegroundColor Red
+		$fails++
+		Write-Result $file $tests[$i].Message $false
 	}
 }
 
 Remove-Item $tempWgConfigPath
 
-if ($pass -eq $tests.Count) {
+if ($passes -eq $tests.Count) {
 	Write-Host "All $($tests.Count) tests passed!" -ForegroundColor Green
 }
 else {
-	Write-Host "From $($tests.Count) tests $pass passed and $fail failed!" -ForegroundColor Red
+	Write-Host "From $($tests.Count) tests $passes passed and $fails failed!" -ForegroundColor Red
 }
 
-exit $fail
+Write-Summary "$PSScriptRoot/_mtr/_.json" $passes $tests.Count
+
+exit $fails
