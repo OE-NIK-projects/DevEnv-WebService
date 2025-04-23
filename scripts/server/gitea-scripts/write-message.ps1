@@ -5,7 +5,7 @@ function Write-Message {
         [string]$Message,
 
         [Parameter()]
-        [ValidateSet('Info', 'Error', 'Command', 'Success', 'Default')]
+        [ValidateSet('Info', 'Error', 'Command', 'Success', 'Warning', 'Default')]
         [string]$Type = 'Default'
     )
 
@@ -15,6 +15,7 @@ function Write-Message {
         'Error' { 'Red' }
         'Success' { 'Green' }
         'Command' { 'Magenta' }
+        'Warning' { 'Yellow' }
         'Default' { 'White' }
     }
 

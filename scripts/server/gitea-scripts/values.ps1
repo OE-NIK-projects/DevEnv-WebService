@@ -11,6 +11,16 @@ $Domains = @{
     WebApp = "boilerplate.lan"
 }
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Config')]
+$Config = @{
+    RemoteUser         = $null
+    RemoteHost         = $null
+    HomeDir            = $env:HOME ?? $env:USERPROFILE
+    SSHKeySize         = 4096
+    DockerDir          = "~/docker"
+    ServerDomain       = $Domains.WebApp
+}
+
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'EnvVars')]
 $EnvVars = @{
     #Gitea

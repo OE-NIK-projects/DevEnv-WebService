@@ -1,3 +1,5 @@
+#!/usr/bin/env pwsh
+
 try {
     & "$PSScriptRoot/install-certificates.ps1"
     & "$PSScriptRoot/create-nginx-conf.ps1"
@@ -11,8 +13,6 @@ try {
     & "$PSScriptRoot/assign-users-to-teams.ps1"
     & "$PSScriptRoot/create-repos.ps1"
     #TODO:
-    # - Upload Nginx certs from config/certs to ../nginx/certs
-    # - Upload webapp from config/server/webapp to ../webapp
     # - Copy repositories from ../gitea-repos/* to ../gitea/data/git/
     # - Run tests
     # - Cleanup if all tests have passed
