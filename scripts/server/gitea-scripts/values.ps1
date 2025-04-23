@@ -7,7 +7,7 @@ $Debug =@{
 
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Domains')]
 $Domains = @{
-    Gitea = "gitea.boilerplate.lan"
+    Gitea = "git.boilerplate.lan"
     WebApp = "boilerplate.lan"
 }
 
