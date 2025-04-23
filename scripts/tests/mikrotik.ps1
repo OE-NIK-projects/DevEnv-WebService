@@ -30,10 +30,6 @@ Test-Command 'wg-quick'
 Test-Command 'ssh'
 Test-Command 'dhcping'
 
-if ($(id -u) -eq 0) {
-	Test-Command 'sudo'
-}
-
 . "$PSScriptRoot/../router/values.ps1"
 
 if ([string]::IsNullOrWhiteSpace($RouterExternalAddress)) {
@@ -60,18 +56,22 @@ $tests = (
 		}
 	),
 
-	[Test]::new("LAN is reachable", {
-			return $(Test-Connection $RouterInternalAddress -ErrorAction SilentlyContinue)
-		}
-	),
-
-	[Test]::new("Forwarded HTTPS port ($RouterExternalAddress`:443) is reachable", {
-			return $(Test-Connection $RouterExternalAddress -TcpPort 443)
+	[Test]::new("The router's WireGuard interface is reachable", {
+			$res = $(Test-Connection $RouterTunnelAddress -Count 1 -ErrorAction SilentlyContinue)
+			if (!$res) {
+				return $false
+			}
+			return $res[0].Status -eq 'Success'
 		}
 	),
 
 	[Test]::new("External SSH port ($RouterExternalAddress`:22) is blocked", {
 			return !$(Test-Connection $RouterExternalAddress -TcpPort 22)
+		}
+	),
+
+	[Test]::new("External HTTPS port ($RouterExternalAddress`:80) is blocked", {
+			return !$(Test-Connection $RouterExternalAddress -TcpPort 80)
 		}
 	),
 
@@ -85,13 +85,17 @@ $tests = (
 		}
 	),
 
-	[Test]::new("DNS name 'boilerplate.lan' resolved successfully", {
-			return $(Test-Connection 'boilerplate.lan' -ErrorAction SilentlyContinue)
+	[Test]::new("DNS name 'router.lan' resolved successfully", {
+			$res = $(Test-Connection 'router.lan' -Count 1 -ErrorAction SilentlyContinue)
+			if (!$res) {
+				return $false
+			}
+			return $res[0].Status -eq 'Success'
 		}
 	),
 
 	[Test]::new("SSH authentication with public key is successful", {
-			ssh -o PasswordAuthentication=no "admin@$RouterTunnelAddress" '/quit' 2>$null
+			ssh -o ConnectTimeout=3 -o PasswordAuthentication=no "admin@$RouterTunnelAddress" '/quit' 2>$null
 			return 0 -eq $LastExitCode
 		}
 	),
@@ -109,10 +113,10 @@ $tests = (
 
 	[Test]::new("Received address from router via DHCP", {
 			if ($IsRoot) {
-				dhcping -s 192.168.11.1
+				dhcping -qs 192.168.11.1
 			}
 			else {
-				$PasswordForSudo | sudo -Sp '' dhcping -s 192.168.11.1
+				$PasswordForSudo | sudo -Sp '' dhcping -qs 192.168.11.1
 			}
 			return 0 -eq $LastExitCode
 		}
@@ -120,6 +124,8 @@ $tests = (
 )
 
 if ($(id -u) -ne 0) {
+	Test-Command 'sudo'
+
 	$PasswordForSudo = Read-Host 'Password for sudo' -MaskInput
 	if ([string]::IsNullOrEmpty($PasswordForSudo)) {
 		Write-Host 'Empty password provided, exiting...'
@@ -130,7 +136,8 @@ else {
 	$IsRoot = $true
 }
 
-$writeResults = Test-Path "$PSScriptRoot/_mtr"
+$resultsDir = "$PSScriptRoot/_mtr"
+$writeResults = Test-Path "$resultsDir/.git"
 
 $tempWgConfigPath = "$PSScriptRoot/temp.peer1.conf"
 Copy-Item "$PSScriptRoot/../../config/wg-peers/peer1.conf" $tempWgConfigPath
@@ -140,7 +147,7 @@ $fails = 0
 
 for ($i = 0; $i -lt $tests.Count; $i++) {
 	$text = "($($i + 1)/$($tests.Count)) Expectation: $($tests[$i].Message)"
-	$file = "$PSScriptRoot/_mtr/$(($i + 1).ToString("D2")).json"
+	$file = "$resultsDir/$(($i + 1).ToString("D2")).json"
 
 	if ($tests[$i].Expression.Invoke()) {
 		Write-Host "[PASSED] $text" -ForegroundColor Green
@@ -148,14 +155,14 @@ for ($i = 0; $i -lt $tests.Count; $i++) {
 		if ($writeResults) {
 			Write-Result $file $tests[$i].Message $true
 		}
- }
+	}
 	else {
 		Write-Host "[FAILED] $text" -ForegroundColor Red
 		$fails++
 		if ($writeResults) {
 			Write-Result $file $tests[$i].Message $false
 		}
- }
+	}
 }
 
 Remove-Item $tempWgConfigPath
@@ -168,8 +175,8 @@ else {
 }
 
 if ($writeResults) {
-	Write-Summary "$PSScriptRoot/_mtr/summary.json" $passes $tests.Count
-	Write-Timestamp "$PSScriptRoot/_mtr/timestamp.json"
+	Write-Summary "$resultsDir/summary.json" $passes $tests.Count
+	Write-Timestamp "$resultsDir/timestamp.json"
 }
 
 exit $fails

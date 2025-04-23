@@ -13,8 +13,8 @@ function Write-Summary {
 	param([string] $File, [int] $Passes, [int] $Count)
 	@{
 		'schemaVersion' = 1
-		'label'         = 'Tesztek eredménye'
-		'message'       = "$Passes/$Count"
+		'label'         = 'Sikeres tesztek'
+		'message'       = "$Passes / $Count"
 		'color'         = $Passes -eq $Count ? '#238636' : '#da3633'
 		'style'         = 'flat-square'
 	} | ConvertTo-Json | Out-File $File
