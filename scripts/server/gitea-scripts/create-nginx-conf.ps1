@@ -60,6 +60,31 @@ http {
     sendfile        on;
     keepalive_timeout  65;
 
+    # Web App: Redirect HTTP to HTTPS
+    server {
+        listen 80;
+        server_name $WebAppDomain;
+        return 301 https://`$host`$request_uri;
+    }
+
+    # Web App: HTTPS server
+    server {
+        listen 443 ssl;
+        server_name $WebAppDomain;
+
+        # SSL configuration
+        ssl_certificate /etc/nginx/certs/domain.crt;
+        ssl_certificate_key /etc/nginx/certs/domain.key;
+
+        location / {
+            proxy_pass http://$($WebAppProxyPassHost):$($WebAppProxyPassPort);
+            proxy_set_header Host `$host;
+            proxy_set_header X-Real-IP `$remote_addr;
+            proxy_set_header X-Forwarded-For `$proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto `$scheme;
+        }
+    }
+
     # Gitea: Redirect HTTP to HTTPS
     server {
         listen 80;
@@ -82,31 +107,6 @@ http {
             proxy_pass http://$($GiteaProxyPassHost):$($GiteaProxyPassPort);
             proxy_set_header Connection `$http_connection;
             proxy_set_header Upgrade `$http_upgrade;
-            proxy_set_header Host `$host;
-            proxy_set_header X-Real-IP `$remote_addr;
-            proxy_set_header X-Forwarded-For `$proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto `$scheme;
-        }
-    }
-
-    # Web App: Redirect HTTP to HTTPS
-    server {
-        listen 80;
-        server_name $WebAppDomain;
-        return 301 https://`$host`$request_uri;
-    }
-
-    # Web App: HTTPS server
-    server {
-        listen 443 ssl;
-        server_name $WebAppDomain;
-        
-        # SSL configuration
-        ssl_certificate /etc/nginx/certs/domain.crt;
-        ssl_certificate_key /etc/nginx/certs/domain.key;
-
-        location / {
-            proxy_pass http://$($WebAppProxyPassHost):$($WebAppProxyPassPort);
             proxy_set_header Host `$host;
             proxy_set_header X-Real-IP `$remote_addr;
             proxy_set_header X-Forwarded-For `$proxy_add_x_forwarded_for;
