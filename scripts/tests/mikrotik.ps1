@@ -130,6 +130,8 @@ else {
 	$IsRoot = $true
 }
 
+$writeResults = Test-Path "$PSScriptRoot/_mtr"
+
 $tempWgConfigPath = "$PSScriptRoot/temp.peer1.conf"
 Copy-Item "$PSScriptRoot/../../config/wg-peers/peer1.conf" $tempWgConfigPath
 
@@ -143,13 +145,17 @@ for ($i = 0; $i -lt $tests.Count; $i++) {
 	if ($tests[$i].Expression.Invoke()) {
 		Write-Host "[PASSED] $text" -ForegroundColor Green
 		$passes++
-		Write-Result $file $tests[$i].Message $true
-	}
+		if ($writeResults) {
+			Write-Result $file $tests[$i].Message $true
+		}
+ }
 	else {
 		Write-Host "[FAILED] $text" -ForegroundColor Red
 		$fails++
-		Write-Result $file $tests[$i].Message $false
-	}
+		if ($writeResults) {
+			Write-Result $file $tests[$i].Message $false
+		}
+ }
 }
 
 Remove-Item $tempWgConfigPath
@@ -161,6 +167,9 @@ else {
 	Write-Host "From $($tests.Count) tests $passes passed and $fails failed!" -ForegroundColor Red
 }
 
-Write-Summary "$PSScriptRoot/_mtr/_.json" $passes $tests.Count
+if ($writeResults) {
+	Write-Summary "$PSScriptRoot/_mtr/summary.json" $passes $tests.Count
+	Write-Timestamp "$PSScriptRoot/_mtr/timestamp.json"
+}
 
 exit $fails
