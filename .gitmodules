@@ -1,0 +1,4 @@
+[submodule "scripts/tests/_mtr"]
+	path = scripts/tests/_mtr
+	url = ./
+	branch = _mtr
