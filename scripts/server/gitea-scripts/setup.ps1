@@ -11,11 +11,9 @@ try {
     & "$PSScriptRoot/create-organization.ps1"
     & "$PSScriptRoot/create-teams.ps1"
     & "$PSScriptRoot/assign-users-to-teams.ps1"
-    & "$PSScriptRoot/create-repos.ps1"
     #TODO:
-    # - Copy repositories from ../gitea-repos/* to ../gitea/data/git/
-    # - Run tests
-    # - Cleanup if all tests have passed
+    #Copy repositories from config/server/repos to server
+    & "$PSScriptRoot/create-repos.ps1"
 } catch {
     Write-Error "An error occurred during setup: $_"
     exit 1
