@@ -8,7 +8,6 @@
 function Test-Winget {
     try {
         winget --version | Out-Null
-	    winget update winget
         return $true
     }
     catch {
@@ -20,16 +19,16 @@ function Test-Winget {
 
 # List of programs to install
 $programs = @(
-    "Microsoft.WindowsTerminal",
-    "Docker.DockerDesktop",
-    "Microsoft.VisualStudioCode",
     "Google.Chrome",
+    "Microsoft.WindowsTerminal",
+    "Microsoft.VisualStudioCode",
+    "OpenJS.NodeJS",
     "Git.Git",
     "GitHub.GitHubDesktop",
     "VideoLAN.VLC",
-    "OpenJS.NodeJS",
-    "Python.Python.3",
-    "Postman.Postman"
+    "Python.Python.3.13",
+    "Postman.Postman",
+    "Docker.DockerDesktop"
 )
 
 # Check for winget
