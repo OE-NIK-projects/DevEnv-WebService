@@ -30,3 +30,5 @@ function Write-Timestamp {
 		'style'         = 'flat-square'
 	} | ConvertTo-Json | Out-File $File
 }
+
+Export-ModuleMember -Function *
