@@ -1,6 +1,6 @@
 # Fejlesztői Eszközök Telepítő
 
-PowerShell szkript, amely winget segítségével telepít alapvető fejlesztői eszközöket.
+Ez egy PowerShell szkript, amely a winget segítségével alapvető fejlesztői eszközöket, konfigurálja a git-et és egy root CA tanúsítványt telepít.
 
 ## Előfeltételek
 
@@ -14,7 +14,7 @@ PowerShell szkript, amely winget segítségével telepít alapvető fejlesztői 
 
 ## Használat
 
-Futtassuk a következő parancsot PowerShell-ben:
+Futtassuk a következő parancsot PowerShell-ben (Rendszergazdai jogosultsággal):
 
 ```ps1
 irm https://raw.githubusercontent.com/OE-NIK-projects/DevEnv-WebService/refs/heads/main/scripts/client/Developer-Tools-Installer.ps1 | iex
@@ -31,8 +31,9 @@ irm https://raw.githubusercontent.com/OE-NIK-projects/DevEnv-WebService/refs/hea
 - **VLC**: Médialejátszó
 - **Python 3.13**: Programozási nyelv
 - **Postman**: API tesztelő eszköz
-- **Docker Desktop**: Konténerizációs platform (újraindítást igényel)
-- **WSL2**: Windows alrendszer Linuxhoz (újraindítást igényel)
+- **Docker Desktop**: Konténerizációs platform
+- **WSL2**: Windows alrendszer Linuxhoz (újraindítást igényelhet)
+- **Root CA Tanúsítvány**: Telepíti a megadott root CA tanúsítványt a Local Machine Root tárolóba a https://raw.githubusercontent.com/OE-NIK-projects/DevEnv-WebService/refs/heads/main/config/certs/rca.crt címről
 
 ## Testreszabás
 
