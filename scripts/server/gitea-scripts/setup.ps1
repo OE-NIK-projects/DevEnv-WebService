@@ -11,9 +11,10 @@ try {
     & "$PSScriptRoot/create-organization.ps1"
     & "$PSScriptRoot/create-teams.ps1"
     & "$PSScriptRoot/assign-users-to-teams.ps1"
+    & "$PSScriptRoot/create-repos.ps1"
+    & "$PSScriptRoot/backup/enable-auto-backup.ps1"
     #TODO:
     #Copy repositories from config/server/repos to server
-    & "$PSScriptRoot/create-repos.ps1"
 } catch {
     Write-Error "An error occurred during setup: $_"
     exit 1
