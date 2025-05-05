@@ -204,6 +204,10 @@ function Set-ServerConfiguration {
     $installResult = Invoke-SSHWithSU "apt install -yqq docker-compose-v2"
     Test-SudoCommandSuccess -SuccessMessage "Docker and Docker Compose V2 installed" -FailureMessage "Docker and Docker Compose V2 install failed: " -Result $installResult | Out-Null
 
+    Write-Message -Message "apt install -yqq zip" -Type Command
+    $installZipResult = Invoke-SSHWithSU "apt install -yqq zip"
+    Test-SudoCommandSuccess -SuccessMessage "Zip installed" -FailureMessage "Zip install failed: " -Result $installZipResult | Out-Null
+
     Write-Message -Message "apt autoremove -y" -Type Command
     $removeResult = Invoke-SSHWithSU "apt autoremove -y"
     Test-SudoCommandSuccess -SuccessMessage "Unused packages removed" -FailureMessage "Package removal failed: " -Result $removeResult | Out-Null
