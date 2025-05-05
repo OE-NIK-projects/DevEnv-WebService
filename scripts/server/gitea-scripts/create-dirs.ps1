@@ -1,8 +1,10 @@
 . $PSScriptRoot/write-message.ps1
 
 $giteaBaseDir = Join-Path -Path $PSScriptRoot -ChildPath ".." | Join-Path -ChildPath "gitea"
+$giteaBackupDir = Join-Path -Path $PSScriptRoot -ChildPath ".." | Join-Path -ChildPath "gitea-backups"
 $configDir = Join-Path -Path $giteaBaseDir -ChildPath "config"
 $dataDir = Join-Path -Path $giteaBaseDir -ChildPath "data"
+$backupFile = Join-Path -Path $giteaBackupDir -ChildPath "gitea-backup.log"
 
 # Create directories if they don't exist
 Write-Message "Creating Gitea directory structure..." -Type Info
@@ -36,6 +38,24 @@ try {
     }
 
     Write-Message "Gitea directory structure created successfully.`n" -Type Success
+
+    # Create backup directory
+    if (-not (Test-Path -Path $giteaBackupDir)) {
+        New-Item -Path $giteaBackupDir -ItemType Directory -Force | Out-Null
+        Write-Message "Created directory: $giteaBackupDir" -Type Success
+    }
+    else {
+        Write-Message "Directory already exists: $giteaBackupDir" -Type Error
+    }
+
+    # Create backup log file
+    if (-not (Test-Path -Path $backupFile)) {
+        New-Item -ItemType File $backupFile | Out-Null
+        Write-Message "Created backup log file: $backupFile" -Type Success
+    }
+    else {
+        Write-Message "File already exists: $backupFile" -Type Error
+    }
 }
 catch {
     Write-Message "Failed to create directories: $_" -Type Error
