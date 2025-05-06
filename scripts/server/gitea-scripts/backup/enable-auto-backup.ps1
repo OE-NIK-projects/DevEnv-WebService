@@ -29,7 +29,7 @@ After=network.target docker.service
 [Service]
 Type=oneshot
 User=ubuntu
-ExecStart=/usr/bin/pwsh $BackupScript
+ExecStart=/snap/bin/pwsh $BackupScript
 WorkingDirectory=$($BackupDir)
 Restart=no
 
