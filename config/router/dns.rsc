@@ -14,3 +14,6 @@
 :if ([find where name="web.boilerplate.lan"]="") do={
 	add cname=boilerplate.lan name=web.boilerplate.lan type=CNAME
 }
+:if ([find where name="webmin.boilerplate.lan"]="") do={
+	add cname=boilerplate.lan name=web.boilerplate.lan type=CNAME
+}

@@ -1,6 +1,6 @@
 #!/usr/bin/env pwsh
 
-. "$PSScriptRoot/results.ps1"
+Import-Module "$PSScriptRoot/results.psm1"
 
 class Test {
 	[string] $Message
