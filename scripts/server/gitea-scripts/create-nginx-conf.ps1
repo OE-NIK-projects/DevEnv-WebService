@@ -29,7 +29,16 @@ function Generate-NginxConf {
         [string]$WebAppProxyPassHost,
 
         [Parameter(Mandatory = $true)]
-        [string]$WebAppProxyPassPort
+        [string]$WebAppProxyPassPort,
+
+        [Parameter(Mandatory = $true)]
+        [string]$WebminDomain,
+
+        [Parameter(Mandatory = $true)]
+        [string]$WebminProxyPassHost,
+
+        [Parameter(Mandatory = $true)]
+        [string]$WebminProxyPassPort
     )
 
     try {
@@ -113,6 +122,35 @@ http {
             proxy_set_header X-Forwarded-Proto `$scheme;
         }
     }
+
+    # Webmin: Redirect HTTP to HTTPS
+    server {
+        listen 80;
+        server_name $WebminDomain;
+        return 301 https://`$host`$request_uri;
+    }
+
+    # Webmin: HTTPS server
+    server {
+        listen 443 ssl;
+        server_name $WebminDomain;
+
+        # SSL configuration
+        ssl_certificate /etc/nginx/certs/domain.crt;
+        ssl_certificate_key /etc/nginx/certs/domain.key;
+
+        location / {
+            proxy_pass https://$($WebminProxyPassHost):$($WebminProxyPassPort);
+            proxy_set_header Connection `$http_connection;
+            proxy_set_header Upgrade `$http_upgrade;
+            proxy_set_header Host `$host;
+            proxy_set_header X-Real-IP `$remote_addr;
+            proxy_set_header X-Forwarded-For `$proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto `$scheme;
+            proxy_read_timeout 300s;
+            proxy_connect_timeout 75s;
+        }
+    }
 }
 "@
 
@@ -143,6 +181,9 @@ Generate-NginxConf -OutputDir $targetDir `
     -GiteaProxyPassPort $EnvVars.GITEA__server__HTTP_PORT `
     -WebAppDomain $EnvVars.WEBAPP_DOMAIN `
     -WebAppProxyPassHost $EnvVars.WEBAPP_CONTAINER_NAME `
-    -WebAppProxyPassPort $EnvVars.WEBAPP_PORT
+    -WebAppProxyPassPort $EnvVars.WEBAPP_PORT `
+    -WebminDomain $EnvVars.WEBMIN_DOMAIN `
+    -WebminProxyPassHost $EnvVars.WEBMIN_DOMAIN `
+    -WebminProxyPassPort $EnvVars.WEBMIN_PORT
 
 Write-Message -Message "nginx.conf generation process completed.`n" -Type Info

@@ -1,24 +1,25 @@
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Debug')]
-$Debug =@{
-    EnableJsonBodyLogging = $false
+$Debug = @{
+    EnableJsonBodyLogging      = $false
     EnableNginxConfFileLogging = $false
-    EnableDotEnvFileLogging = $false
+    EnableDotEnvFileLogging    = $false
 }
 
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Domains')]
 $Domains = @{
-    Gitea = "git.boilerplate.lan"
+    Gitea  = "git.boilerplate.lan"
     WebApp = "boilerplate.lan"
+    Webmin = "webmin.boilerplate.lan"
 }
 
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Config')]
 $Config = @{
-    RemoteUser         = $null
-    RemoteHost         = $null
-    HomeDir            = $env:HOME ?? $env:USERPROFILE
-    SSHKeySize         = 4096
-    DockerDir          = "~/docker"
-    ServerDomain       = $Domains.WebApp
+    RemoteUser   = $null
+    RemoteHost   = $null
+    HomeDir      = $env:HOME ?? $env:USERPROFILE
+    SSHKeySize   = 4096
+    DockerDir    = "~/docker"
+    ServerDomain = $Domains.WebApp
 }
 
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'EnvVars')]
@@ -47,6 +48,9 @@ $EnvVars = @{
     WEBAPP_PORT                          = "80"
     WEBAPP_DOMAIN                        = $Domains.WebApp
     WEBAPP_DEVMODE                       = "false"
+    #Webmin
+    WEBMIN_DOMAIN                        = $Domains.Webmin
+    WEBMIN_PORT                          = "10000"
 }
 
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'Api')]

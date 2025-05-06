@@ -6,11 +6,11 @@
 
 # Configuration Object
 $Config = @{
-    RemoteUser         = $null
-    RemoteHost         = $null
-    HomeDir            = $env:HOME ?? $env:USERPROFILE
-    SSHKeySize         = 4096
-    DockerDir          = "~/services"
+    RemoteUser = $null
+    RemoteHost = $null
+    HomeDir    = $env:HOME ?? $env:USERPROFILE
+    SSHKeySize = 4096
+    DockerDir  = "~/services"
 }
 
 # Derived Paths
@@ -207,6 +207,18 @@ function Set-ServerConfiguration {
     Write-Message -Message "apt install -yqq zip" -Type Command
     $installZipResult = Invoke-SSHWithSU "apt install -yqq zip"
     Test-SudoCommandSuccess -SuccessMessage "Zip installed" -FailureMessage "Zip install failed: " -Result $installZipResult | Out-Null
+
+    Write-Message -Message "curl -o webmin-setup-repo.sh https://raw.githubusercontent.com/webmin/webmin/master/webmin-setup-repo.sh" -Type Command
+    $installScriptDownloadResult = Invoke-SSHWithSU "curl -o webmin-setup-repo.sh https://raw.githubusercontent.com/webmin/webmin/master/webmin-setup-repo.sh"
+    Test-SudoCommandSuccess -SuccessMessage "Webmin install script downloaded" -FailureMessage "Webmin install script download failed: " -Result $installScriptDownloadResult | Out-Null
+
+    Write-Message -Message "sh webmin-setup-repo.sh -f" -Type Command
+    $webminInstallScriptResult = Invoke-SSHWithSU "sh webmin-setup-repo.sh -f"
+    Test-SudoCommandSuccess -SuccessMessage "Webmin repositories set up" -FailureMessage "Webmin repositories set up failed: " -Result $webminInstallScriptResult | Out-Null
+
+    Write-Message -Message "apt install --install-recommends webmin usermin -yqq" -Type Command
+    $webminInstallResult = Invoke-SSHWithSU "apt install --install-recommends webmin usermin -yqq"
+    Test-SudoCommandSuccess -SuccessMessage "Webmin installed" -FailureMessage "Webmin install failed: " -Result $webminInstallResult | Out-Null
 
     Write-Message -Message "apt autoremove -y" -Type Command
     $removeResult = Invoke-SSHWithSU "apt autoremove -y"
