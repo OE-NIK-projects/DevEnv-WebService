@@ -227,6 +227,18 @@ function Set-ServerConfiguration {
     Write-Message -Message "groupadd -f docker && usermod -aG docker,sudo $($Config.RemoteUser)" -Type Command
     $groupResult = Invoke-SSHWithSU "groupadd -f docker && usermod -aG docker,sudo $($Config.RemoteUser)"
     Test-SudoCommandSuccess -SuccessMessage "User groups configured" -FailureMessage "Group configuration failed: " -Result $groupResult | Out-Null
+
+    Write-Message -Message "ufw allow 22,80,443,10000/tcp" -Type Command
+    $firewallTcpResult = Invoke-SSHWithSU "ufw allow 22,80,443,10000/tcp"
+    Test-SudoCommandSuccess -SuccessMessage "Allowed 22,80,443,10000/tcp ports" -FailureMessage "Couldn't allow ports: " -Result $firewallTcpResult | Out-Null
+
+    Write-Message -Message "ufw allow 22,80,443,10000/udp" -Type Command
+    $firewallUdpResult = Invoke-SSHWithSU "ufw allow 22,80,443,10000/udp"
+    Test-SudoCommandSuccess -SuccessMessage "Allowed 22,80,443,10000/udp ports" -FailureMessage "Couldn't allow ports: " -Result $firewallUdpResult | Out-Null
+
+    Write-Message -Message "ufw --force enable" -Type Command
+    $firewallUdpResult = Invoke-SSHWithSU "ufw --force enable"
+    Test-SudoCommandSuccess -SuccessMessage "Firewall enabled" -FailureMessage "Couldn't enable firewall: " -Result $firewallUdpResult | Out-Null
 }
 
 function New-GiteaDirectories {
@@ -302,12 +314,12 @@ function Start-Gitea {
 }
 
 function Write-AccessInfo {
-    Write-Message -Message "Web: https://$($Domains.WebApp)" -Type Info
-    Write-Message -Message "Web: https://web.$($Domains.WebApp)" -Type Info
-    Write-Message -Message "Gitea: https://$($Domains.Gitea)" -Type Info
-    Write-Message -Message "Gitea admin web: https://git.boilerplate.lan/user/login?redirect_to=%2fexplore%2frepos" -Type Info
-    Write-Message -Message "`tUsername: $($Admins[0].Username)" -Type Info
-    Write-Message -Message "`tPassword: $($Admins[0].Password)" -Type Info
+    Write-Message -Message "Web:`thttps://$($Domains.WebApp)" -Type Info
+    Write-Message -Message "Webmin:`thttps://$($Domains.Webmin)" -Type Info
+    Write-Message -Message "Gitea:`thttps://$($Domains.Gitea)" -Type Info
+    Write-Message -Message "Gitea admin credentials:" -Type Info
+    Write-Message -Message "`t Username: $($Admins[0].Username)" -Type Info
+    Write-Message -Message "`t Password: $($Admins[0].Password)" -Type Info
     Write-Message -Message "Change admin credentials ASAP!" -Type Warning
 }
 
