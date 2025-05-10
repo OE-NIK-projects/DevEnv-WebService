@@ -2,15 +2,15 @@
 
 [CmdletBinding()]
 param (
-	[Parameter(Mandatory = $true, Position = 0)]
+	[Parameter(Mandatory)]
 	[string]
 	$Address,
 
-	[Parameter(Mandatory = $true, Position = 1)]
+	[Parameter(Mandatory)]
 	[UInt16]
 	$Port,
 
-	[Parameter(Mandatory = $true, Position = 2)]
+	[Parameter(Mandatory)]
 	[string]
 	$User
 )
@@ -25,6 +25,9 @@ if (!(Get-Command 'sftp' -ErrorAction SilentlyContinue)) {
 	Exit-WithError 'sftp is not installed!'
 }
 
+if (!(Test-Path "$PSScriptRoot/../../../config/router")) {
+	Exit-WithError 'failed to find RouterOS scripts!'
+}
 
 $cmds = @"
 put $(Resolve-Path "$PSScriptRoot/../../../config/router")/*.rsc

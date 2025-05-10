@@ -2,15 +2,15 @@
 
 [CmdletBinding()]
 param (
-	[Parameter(Mandatory = $true, Position = 0)]
+	[Parameter(Mandatory)]
 	[string]
 	$Address,
 
-	[Parameter(Mandatory = $true, Position = 1)]
+	[Parameter(Mandatory)]
 	[UInt16]
 	$Port,
 
-	[Parameter(Mandatory = $true, Position = 2)]
+	[Parameter(Mandatory)]
 	[string]
 	$User
 )
@@ -23,6 +23,10 @@ function Exit-WithError {
 
 if (!(Get-Command 'ssh' -ErrorAction SilentlyContinue)) {
 	Exit-WithError 'ssh is not installed!'
+}
+
+if (!(Test-Path "$PSScriptRoot/../../../config/router")) {
+	Exit-WithError 'failed to find RouterOS scripts!'
 }
 
 $cmds = "/system/backup/save name=before-setup"

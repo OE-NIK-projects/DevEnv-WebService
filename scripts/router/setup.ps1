@@ -3,24 +3,19 @@
 [CmdletBinding()]
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', 'Password')]
 param (
-	[Parameter(Position = 0)]
 	[ValidateSet('Help', 'CopyKey', 'CopyConf', 'SetConf', 'SetPass', 'Full', 'SSH', 'TestConn')]
 	[string]
 	$Task = 'Help',
 
-	[Parameter(Position = 1)]
 	[string]
 	$Address = $null,
 
-	[Parameter(Position = 2)]
 	[UInt16]
 	$Port = 22,
 
-	[Parameter(Position = 3)]
 	[string]
 	$User = 'admin',
 
-	[Parameter(Position = 4)]
 	[string]
 	$Password = $null
 )
