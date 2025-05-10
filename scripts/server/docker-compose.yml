@@ -18,6 +18,7 @@ services:
         condition: service_started
     networks:
       - gitea-network
+    restart: always
 
   gitea:
     image: docker.gitea.com/gitea:1.23.7-rootless
@@ -31,6 +32,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
     networks:
       - gitea-network
+    restart: always
 
   webapp:
     build:
@@ -44,6 +46,7 @@ services:
       - DEVMODE=${WEBAPP_DEVMODE}
     networks:
       - gitea-network
+    restart: always
 
 networks:
   gitea-network:
