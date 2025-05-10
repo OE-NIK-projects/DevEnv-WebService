@@ -7,7 +7,8 @@ fi
 
 set -e
 
-CERTFILE=/usr/local/share/ca-certificates/boilerplate-ca.crt
+CERT_FILE=/usr/local/share/ca-certificates/boilerplate-ca.crt
+REPO_PATH=~/projects/Frontend-Repo
 
 sudo bash <<EOF
 set -e
@@ -27,22 +28,35 @@ apt update
 apt upgrade -y
 apt install -y code git inkscape jq libnss3-tools micro ranger
 
-wget -qO $CERTFILE https://raw.githubusercontent.com/OE-NIK-projects/DevEnv-WebService/refs/heads/main/config/certs/rca.crt
+wget -O $CERT_FILE https://raw.githubusercontent.com/OE-NIK-projects/DevEnv-WebService/refs/heads/main/config/certs/rca.crt
 update-ca-certificates
 EOF
 
+rm -rf $REPO_PATH
+
+echo 'https://benji.coleman:Password1%21@git.boilerplate.lan' > ~/.git-credentials
 git config --global user.name benji.coleman
 git config --global user.email benji.coleman@boilerplate.lan
-git config --global user.password Password1!
 git config --global credential.helper store
 
-git clone https://git.boilerplate.lan/Frontend/Frontend-Repo.git ~/projects/Frontend-Repo
+git clone https://git.boilerplate.lan/Frontend/Frontend-Repo.git $REPO_PATH
+
+if [ ! -f "$REPO_PATH/.gitattributes" ]; then
+	pushd $REPO_PATH
+	echo '* text=auto eol=lf' > .gitattributes
+	git add .gitattributes
+	git commit -m 'Added .gitattributes file'
+	git push
+	popd
+fi
 
 firefox &
 PID=$!
 sleep 1
 kill -TERM $PID
-certutil -A -d ~/.mozilla/firefox/*.default-release/ -i $CERTFILE -n 'Boilerplate Certificate Authority' -t 'C,T,TC'
+certutil -A -d ~/.mozilla/firefox/*.default-release/ -i $CERT_FILE -n 'Boilerplate Certificate Authority' -t 'C,T,TC'
+
+curl -fsSL https://bun.sh/install | bash
 
 code --install-extension oven.bun-vscode
 
