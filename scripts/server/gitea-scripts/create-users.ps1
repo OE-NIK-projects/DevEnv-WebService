@@ -24,7 +24,7 @@ function Add-GiteaUser {
 
         [Parameter()]
         [string]$AdminUsername = $Admins[0].Username,
-        
+
         [Parameter()]
         [string]$AdminPassword = $Admins[0].Password
     )
@@ -35,7 +35,7 @@ function Add-GiteaUser {
             email                = $Email
             password             = $Password
             full_name            = $FullName
-            must_change_password = $true
+            must_change_password = $false
         }
 
         $uri = "$ApiBaseUrl/admin/users"
