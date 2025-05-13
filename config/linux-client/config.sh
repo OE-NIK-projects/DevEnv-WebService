@@ -10,6 +10,8 @@ set -e
 CERT_FILE=/usr/local/share/ca-certificates/boilerplate-ca.crt
 REPO_PATH=~/projects/Frontend-Repo
 
+# Update system and install packages
+
 sudo bash <<EOF
 set -e
 
@@ -32,23 +34,19 @@ wget -O $CERT_FILE https://raw.githubusercontent.com/OE-NIK-projects/DevEnv-WebS
 update-ca-certificates
 EOF
 
+# Setup git
+
 rm -rf $REPO_PATH
 
 echo 'https://benji.coleman:Password1%21@git.boilerplate.lan' > ~/.git-credentials
+
 git config --global user.name benji.coleman
 git config --global user.email benji.coleman@boilerplate.lan
 git config --global credential.helper store
 
 git clone https://git.boilerplate.lan/Frontend/Frontend-Repo.git $REPO_PATH
 
-if [ ! -f "$REPO_PATH/.gitattributes" ]; then
-	pushd $REPO_PATH
-	echo '* text=auto eol=lf' > .gitattributes
-	git add .gitattributes
-	git commit -m 'Added .gitattributes file'
-	git push
-	popd
-fi
+# Setup firefox
 
 firefox &
 PID=$!
@@ -56,13 +54,21 @@ sleep 1
 kill -TERM $PID
 certutil -A -d ~/.mozilla/firefox/*.default-release/ -i $CERT_FILE -n 'Boilerplate Certificate Authority' -t 'C,T,TC'
 
+# Install bun
+
 curl -fsSL https://bun.sh/install | bash
 
+# Install bun extension for vscode
+
 code --install-extension oven.bun-vscode
+
+# Update pinned apps
 
 CONFIG=~/.config/cinnamon/spices/grouped-window-list\@cinnamon.org/*.json
 TEMP=/tmp/config.json
 jq '.["pinned-apps"].value = ["firefox.desktop", "code.desktop", "org.gnome.Terminal.desktop", "nemo.desktop"]' $CONFIG > $TEMP
 mv $TEMP $CONFIG
+
+# Reboot the system
 
 reboot
