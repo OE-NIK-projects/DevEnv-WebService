@@ -1,5 +1,3 @@
-#!/usr/bin/env pwsh
-
 . "$PSScriptRoot/../write-message.ps1"
 
 $serviceName = 'webapp-backup.service'
@@ -8,11 +6,18 @@ $timerName = 'webapp-backup.timer'
 $serviceFile = "/etc/systemd/system/$serviceName"
 $timerFile = "/etc/systemd/system/$timerName"
 
+$scriptFile = "$PSScriptRoot/webapp-backup.sh"
 $backupDir = '/home/ubuntu/services/webapp-backups'
 $containerName = 'webapp'
 $dbFile = '/app/public/db/services.json'
 
-$commands = "mkdir -p $backupDir && docker cp `"$containerName`:$dbFile`" `"$backupDir/`$(date -Iminutes).json`""
+$commands = @"
+container=$containerName
+srcFile=$dbFile
+destDir=$backupDir
+
+mkdir -p `$destDir && docker cp "`$container:`$srcFile" "`$destDir/`$(date -Iminutes).json"
+"@
 
 $service = @"
 [Unit]
@@ -22,7 +27,7 @@ After=docker.service
 [Service]
 Type=oneshot
 User=ubuntu
-ExecStart=/usr/bin/bash -c '$commands'
+ExecStart=/usr/bin/bash $scriptFile
 
 [Install]
 WantedBy=multi-user.target
@@ -41,6 +46,9 @@ WantedBy=timers.target
 "@
 
 try {
+	Write-Message "Creating $scriptFile" Info
+	Set-Content $scriptFile $commands
+
 	Write-Message "Creating $serviceFile" Info
 	$service | sudo tee $serviceFile >$null
 

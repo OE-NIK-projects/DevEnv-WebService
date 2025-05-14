@@ -12,7 +12,7 @@ try {
     & "$PSScriptRoot/create-teams.ps1"
     & "$PSScriptRoot/assign-users-to-teams.ps1"
     & "$PSScriptRoot/create-repos.ps1"
-	& "$PSScriptRoot/repos/setup.ps1"
+    & "$PSScriptRoot/repos/setup.ps1"
     & "$PSScriptRoot/backup/enable-auto-backup.ps1"
     & "$PSScriptRoot/backup/enable-webapp-backup.ps1"
 } catch {
